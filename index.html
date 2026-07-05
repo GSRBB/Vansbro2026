@@ -1,0 +1,1841 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet">
+<title>Swimming Norway</title>
+<style>
+:root{--bg:#e8e8e8;--surface:#ffffff;--border:#d8d8d8;--text:#1a1a1a;--muted:#888888;--accent:#2a7a2a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── HEADER ── */
+header{padding:0;border-bottom:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;flex-shrink:0;}
+#header-top{padding:6px 12px;display:flex;align-items:center;gap:8px;min-height:44px;}
+#header-social{padding:5px 12px 6px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.03);flex-wrap:wrap;}
+#header-social-text{font-size:0.62rem;color:var(--muted);font-family:'Inter',sans-serif;white-space:nowrap;}
+.hdr-social-link{display:flex;align-items:center;gap:4px;text-decoration:none;color:var(--text);font-size:0.62rem;font-family:'Inter',sans-serif;font-weight:500;-webkit-tap-highlight-color:transparent;opacity:0.85;}
+.hdr-social-link:active{opacity:0.5;}
+#avatar-logo{width:30px;height:30px;border-radius:6px;object-fit:cover;flex-shrink:0;cursor:default;}
+#title-input{font-size:1rem;font-style:italic;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;outline:none;flex:1;min-width:0;}
+#title-input:focus{border-bottom:1px solid var(--accent);}
+.hdr-btn{padding:6px 10px;background:rgba(42,122,42,0.08);border:1px solid rgba(42,122,42,0.35);color:var(--accent);font-family:'Inter',sans-serif;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border-radius:4px;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+#btn-saveas{padding:3px 8px;background:transparent;border:1px solid rgba(0,0,0,0.18);color:rgba(0,0,0,0.45);font-family:'Inter',sans-serif;font-size:0.55rem;letter-spacing:0.03em;text-transform:lowercase;cursor:pointer;border-radius:3px;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+#btn-saveas:active{background:rgba(0,0,0,0.06);}
+.hdr-btn:active{background:rgba(42,122,42,0.2);}
+
+/* ── MAIN AREA ── */
+.main{display:flex;flex:1;overflow:hidden;min-height:0;position:relative;}
+#map-wrap{flex:1;position:relative;overflow:hidden;background:#e8e8e8;min-width:0;}
+#cv{position:absolute;top:0;left:0;cursor:grab;touch-action:none;}
+#cv:active{cursor:grabbing;}
+
+/* ── MAP OVERLAYS ── */
+.layer-switcher{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:3px;z-index:10;}
+.layer-btn{padding:5px 9px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-family:'Inter',sans-serif;font-size:0.52rem;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border-radius:4px;-webkit-tap-highlight-color:transparent;min-width:80px;text-align:center;}
+.layer-btn:active{opacity:0.7;}
+.layer-btn.active{background:rgba(42,122,42,0.12);border-color:rgba(42,122,42,0.5);color:var(--accent);}
+.map-controls{position:absolute;bottom:18px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+.map-btn{width:36px;height:36px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:1.2rem;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-tap-highlight-color:transparent;}
+.map-btn:active{background:#eeeeee;}
+.attrib{position:absolute;bottom:4px;left:6px;font-size:8px;color:rgba(255,255,255,0.7);z-index:10;background:rgba(0,0,0,0.4);padding:2px 5px;border-radius:2px;}
+.attrib a{color:rgba(255,255,255,0.7);}
+#credit{position:absolute;bottom:8px;right:8px;font-size:8px;font-family:'Inter',sans-serif;color:rgba(255,255,255,0.65);z-index:10;pointer-events:none;}
+
+/* ── DRAWER HANDLE (mobile) ── */
+#drawer-handle{
+  display:none;
+  width:100%;padding:10px 0 8px;text-align:center;
+  cursor:pointer;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+  background:var(--surface);
+}
+#drawer-handle::before{
+  content:'';display:block;
+  width:36px;height:4px;
+  background:#bbb;border-radius:2px;
+  margin:0 auto 6px;
+}
+#drawer-handle::after{
+  content:'⚙  Settings';
+  display:block;
+  font-size:0.72rem;
+  font-family:'Inter',sans-serif;
+  font-weight:bold;
+  letter-spacing:0.06em;
+  color:var(--accent);
+}
+.sidebar.open #drawer-handle::after{
+  content:'✕  Close';
+  color:var(--muted);
+}
+
+/* ── SIDEBAR (always mobile) ── */
+.sidebar{
+  position:absolute;
+  bottom:0; left:0; right:0;
+  width:100%;
+  height:44px;
+  border-left:none;
+  border-top:2px solid var(--border);
+  border-radius:14px 14px 0 0;
+  overflow:hidden;
+  transition:height 0.3s ease;
+  z-index:20;
+  box-shadow:0 -2px 12px rgba(0,0,0,0.12);
+  background:var(--surface);
+  display:flex;flex-direction:column;
+}
+.sidebar.open{
+  height:55vh;
+  overflow-y:auto;
+}
+.sb-section{padding:10px 14px;border-bottom:1px solid var(--border);}
+.sb-label{font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.track-row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:4px;margin-bottom:4px;background:rgba(0,0,0,0.03);}
+.trk-move{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
+.trk-move-btn{width:18px;height:14px;background:none;border:1px solid var(--border);border-radius:2px;color:var(--muted);font-size:0.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;-webkit-tap-highlight-color:transparent;}
+.trk-move-btn:active{background:var(--border);}
+.btn-stitch{width:100%;margin-top:6px;padding:8px;background:rgba(100,120,200,0.07);border:1px solid rgba(100,120,200,0.3);color:#4466cc;font-family:'Inter',sans-serif;font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border-radius:4px;-webkit-tap-highlight-color:transparent;}
+.btn-stitch:active{background:rgba(100,120,200,0.15);}
+.track-row.off .trk-name-input{opacity:0.4;}
+.track-row.off .trk-dist{opacity:0.4;}
+.tog{width:36px;height:20px;background:var(--border);border-radius:10px;flex-shrink:0;cursor:pointer;position:relative;transition:background 0.2s;-webkit-tap-highlight-color:transparent;}
+.tog.on{background:rgba(42,122,42,0.55);}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform 0.2s,background 0.2s;}
+.tog.on::after{transform:translateX(16px);background:var(--accent);}
+.color-swatch{width:20px;height:20px;border-radius:4px;flex-shrink:0;cursor:pointer;border:1px solid rgba(0,0,0,0.15);position:relative;overflow:hidden;}
+.color-swatch input[type=color]{position:absolute;inset:-4px;opacity:0;cursor:pointer;width:calc(100% + 8px);height:calc(100% + 8px);}
+.trk-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.trk-name-input{font-size:0.7rem;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;outline:none;width:100%;}
+.trk-name-input:focus{border-bottom:1px solid rgba(42,122,42,0.5);}
+.trk-dist{font-size:0.58rem;color:var(--muted);}
+.trk-del{font-size:0.8rem;color:var(--muted);cursor:pointer;flex-shrink:0;padding:0 3px;line-height:1;-webkit-tap-highlight-color:transparent;}
+.trk-del:active{color:#c0392b;}
+.global-toggles{display:flex;flex-direction:column;gap:10px;}
+.gtog-row{display:flex;align-items:center;justify-content:space-between;}
+.gtog-label{font-size:0.65rem;color:var(--text);}
+.btn-all{width:100%;margin-top:8px;padding:8px;background:rgba(42,122,42,0.07);border:1px solid rgba(42,122,42,0.3);color:var(--accent);font-family:'Inter',sans-serif;font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border-radius:4px;-webkit-tap-highlight-color:transparent;}
+.btn-all:active{background:rgba(42,122,42,0.15);}
+.upload-wrap{position:relative;}
+.btn-upload{width:100%;padding:8px;background:rgba(106,174,232,0.08);border:1px solid rgba(106,174,232,0.25);color:#6aaee8;font-family:'Inter',sans-serif;font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border-radius:4px;display:block;text-align:center;-webkit-tap-highlight-color:transparent;}
+.btn-upload:active{background:rgba(106,174,232,0.18);}
+#gpx-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.upload-hint{font-size:0.55rem;color:var(--muted);margin-top:5px;text-align:center;}
+.appear-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.appear-label{font-size:0.65rem;color:var(--text);}
+.appear-swatch{width:26px;height:26px;border-radius:4px;border:1px solid rgba(0,0,0,0.15);position:relative;overflow:hidden;cursor:pointer;flex-shrink:0;}
+.appear-swatch input[type=color]{position:absolute;inset:-4px;opacity:0;cursor:pointer;width:calc(100%+8px);height:calc(100%+8px);}
+.stat-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.sl{font-size:0.56rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+.sv{font-size:0.72rem;}
+
+/* ── FOOTER ── */
+footer{padding:6px 14px;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:16px;flex-shrink:0;}
+.fs{display:flex;gap:5px;align-items:baseline;}
+.fs .v{font-size:0.75rem;}
+.fs .l{font-size:0.54rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+
+/* ── ANIMATION ── */
+#anim-stats{
+  display:none;position:absolute;top:0;left:0;right:0;
+  background:rgba(0,0,0,0.55);
+  padding:18px 24px 14px;
+  z-index:15;pointer-events:none;
+  font-family:'Inter',sans-serif;
+  text-align:center;
+}
+#anim-day{
+  font-size:1.5rem;font-weight:900;
+  color:#ffffff;
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+}
+#anim-km{
+  font-size:3.2rem;font-weight:900;
+  color:#ffffff;
+  line-height:1;
+  margin-top:4px;
+  letter-spacing:-0.02em;
+}
+#anim-km-label{
+  font-size:0.85rem;font-weight:500;
+  color:rgba(255,255,255,0.7);
+  margin-top:2px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+}
+#anim-controls{
+  display:none;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.1);
+  border-radius:24px;padding:7px 14px;z-index:15;
+  display:none;align-items:center;gap:10px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.15);
+  white-space:nowrap;
+}
+#anim-controls.visible{ display:flex; }
+#anim-playpause,#anim-reset,#anim-close{
+  background:none;border:none;font-size:1.1rem;cursor:pointer;
+  color:#333;padding:0 2px;line-height:1;-webkit-tap-highlight-color:transparent;
+}
+#anim-playpause:active,#anim-reset:active,#anim-close:active{ opacity:0.5; }
+#anim-speed{ width:80px;accent-color:var(--accent);cursor:pointer; }
+#anim-speed-label{ font-size:0.6rem;color:var(--muted);font-family:'Inter',sans-serif; }
+#btn-animate.active{ background:rgba(42,122,42,0.18);border-color:rgba(42,122,42,0.6);color:var(--accent); }
+#anim-playpause{ font-size:1.3rem; padding:0 6px; display:flex;align-items:center;justify-content:center; }
+#anim-reset{ font-size:1.1rem; }
+#anim-close{ font-size:1.0rem; }
+#anim-playpause svg, #btn-animate svg{ display:inline-block;vertical-align:middle;pointer-events:none; }
+
+/* ── COVERED DISTANCE OVERLAY (non-animation) ── */
+#covered-dist-overlay{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.62);color:#fff;
+  border-radius:8px;padding:6px 16px;
+  font-family:'Inter',sans-serif;font-weight:700;
+  z-index:11;pointer-events:none;
+  letter-spacing:0.01em;text-align:center;line-height:1.5;
+}
+#covered-dist-overlay .days-line{
+  font-size:0.72rem;opacity:0.85;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;
+}
+#covered-dist-overlay .km-line{
+  font-size:1.05rem;font-weight:800;
+}
+
+/* ── LAYOUT (always mobile) ── */
+.main{ flex-direction:column; position:relative; }
+#map-wrap{ flex:1; height:100%; }
+#drawer-handle{ display:block; }
+footer{ display:none; }
+.map-controls{ bottom:60px; right:10px; }
+#credit{ bottom:52px; }
+.attrib{ bottom:52px; }
+.tog{ width:44px;height:26px; }
+.tog::after{ width:18px;height:18px; }
+.tog.on::after{ transform:translateX(18px); }
+.map-btn{ width:44px;height:44px; }
+.gtog-row{ padding:2px 0; }
+#anim-controls{ bottom:58px; }
+#social-panel{ bottom:58px; }
+
+/* ── Offset tool ─────────────────────────────────────────────── */
+#offtool select#off-seg{width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(0,0,0,0.18);background:#fff;font:inherit;font-size:12px;color:#222;box-sizing:border-box;}
+.off-steps{display:flex;gap:5px;margin:9px 0 4px;}
+.off-step{flex:1;padding:5px 0;text-align:center;border:1px solid rgba(0,0,0,0.15);background:#f4f4f4;border-radius:6px;font-size:11px;cursor:pointer;color:#333;}
+.off-step.active{background:#007bff;color:#fff;border-color:#007bff;}
+.off-pad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,36px);gap:5px;max-width:160px;margin:10px auto 4px;}
+.off-pad button{border:1px solid rgba(0,0,0,0.15);background:#f4f4f4;border-radius:8px;font-size:16px;cursor:pointer;color:#333;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:none;}
+.off-pad button:hover{background:#e7e7e7;} .off-pad button:active{background:#d3d3d3;}
+#off-up{grid-column:2;grid-row:1;} #off-left{grid-column:1;grid-row:2;} #off-center{grid-column:2;grid-row:2;font-size:13px;} #off-right{grid-column:3;grid-row:2;} #off-down{grid-column:2;grid-row:3;}
+#off-readout{text-align:center;font-size:11px;color:#555;margin:6px 0 10px;font-variant-numeric:tabular-nums;}
+#off-save{width:100%;padding:8px;border:none;border-radius:6px;background:#16a34a;color:#fff;font-size:12px;font-weight:600;cursor:pointer;}
+#off-save:disabled{background:#bbb;cursor:not-allowed;}
+#off-hint{font-size:10px;color:#888;text-align:center;margin-top:6px;}
+#off-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;}
+#off-modal .box{background:#fff;border-radius:12px;padding:20px;width:min(350px,90vw);box-shadow:0 12px 44px rgba(0,0,0,0.32);}
+#off-modal h3{margin:0 0 4px;font-size:15px;color:#111;}
+#off-modal #off-modal-sub{font-size:11px;color:#666;margin-bottom:13px;line-height:1.4;}
+#off-modal input{width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid rgba(0,0,0,0.2);border-radius:8px;font:inherit;font-size:13px;margin-bottom:14px;}
+#off-modal .btns{display:flex;gap:8px;justify-content:flex-end;}
+#off-modal button{padding:8px 15px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;}
+#off-modal-cancel{background:#eee;color:#333;} #off-modal-ok{background:#16a34a;color:#fff;}
+</style>
+</head>
+<body>
+<header>
+  <div id="header-top">
+    <input id="title-input" type="text" value="Vansbro2026" spellcheck="false">
+    <button id="btn-saveas">save</button>
+  </div>
+  <div id="header-social">
+    <span id="header-social-text">Follow Knut Ivan Rasmussen in the Norwegian Swim Expedition</span>
+    <a class="hdr-social-link" href="https://www.instagram.com/knutivan_swimmer" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><defs><radialGradient id="ig-h" cx="30%" cy="107%" r="130%"><stop offset="0%" stop-color="#fdf497"></stop><stop offset="5%" stop-color="#fdf497"></stop><stop offset="45%" stop-color="#fd5949"></stop><stop offset="60%" stop-color="#d6249f"></stop><stop offset="90%" stop-color="#285AEB"></stop></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ig-h)"></rect><circle cx="12" cy="12" r="4.5" stroke="white" stroke-width="1.8" fill="none"></circle><circle cx="17.2" cy="6.8" r="1.2" fill="white"></circle></svg>
+    </a>
+    <a class="hdr-social-link" href="https://www.facebook.com/share/g/1B3GMYGN1H/?mibextid=wwXIfr" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" fill="#1877F2"></rect><path d="M13.5 12.5h2l.4-2.5H13.5V8.5c0-.7.3-1.3 1.3-1.3H16V5s-.9-.1-1.9-.1c-2 0-3.3 1.2-3.3 3.3v1.8H8.5V12.5H10.8V19h2.7v-6.5z" fill="white"></path></svg>
+    </a>
+    <a class="hdr-social-link" href="https://www.strava.com/athletes/150352877" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" fill="#FC4C02"></rect><path d="M13.5 7l2.5 4.5H14L12 7.8 10 11.5H7.5L12 4l1.5 3z" fill="white"></path><path d="M14 11.5l1.5 3h-2L12 11.5l-1.5 3h-2L12 19l3.5-7.5H14z" fill="white" opacity="0.7"></path></svg>
+      Strava
+    </a>
+  </div>
+</header>
+<div class="main">
+  <div id="map-wrap">
+    <canvas id="cv" width="1912" height="837" style="width: 1912px; height: 837px;"></canvas>
+    <div class="layer-switcher">
+      <div class="layer-btn" id="btn-street">Street</div>
+      <div class="layer-btn active" id="btn-satellite">Satellite</div>
+      <div class="layer-btn" id="btn-animate"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style="vertical-align:middle;margin-right:4px"><polygon points="1,0.5 9.5,5 1,9.5"></polygon></svg>Animate</div>
+    </div>
+    <div class="map-controls">
+      <div class="map-btn" id="btn-plus">+</div>
+      <div class="map-btn" id="btn-minus">−</div>
+      <div class="map-btn" id="btn-fit">▣</div>
+    </div>
+    <div class="attrib" id="attrib">© <a href="https://www.esri.com" target="_blank">Esri</a>, Maxar</div>
+    <div id="credit">Built by Gustavo Ribbe</div>
+
+    <!-- Animation stats overlay -->
+    <div id="anim-stats" style="display: none;">
+      <div id="anim-day">29 Apr</div>
+      <div id="anim-km">209</div>
+      <div id="anim-km-label">km covered</div>
+    </div>
+
+    <!-- Covered distance overlay (non-animation) -->
+    <div id="covered-dist-overlay" style="display: none;"><div class="days-line">3 days swimming</div><div class="km-line">8 km covered</div></div>
+
+    <!-- Animation controls bar -->
+    <div id="anim-controls" class="">
+      <button id="anim-playpause"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="2,1 11,6 2,11"></polygon></svg></button>
+      <input id="anim-speed" type="range" min="1" max="10" value="4" title="Speed">
+      <span id="anim-speed-label">Speed</span>
+      <button id="anim-reset">↺</button>
+      <button id="anim-close">✕</button>
+    </div>
+  </div>
+  <div class="sidebar" id="sidebar">
+    <div id="drawer-handle"></div>
+    <div class="sb-section">
+      <div class="sb-label">Display</div>
+      <div class="global-toggles">
+        <div class="gtog-row"><span class="gtog-label">Start / End markers</span><div class="tog on" id="tog-markers"></div></div>
+        <div class="gtog-row"><span class="gtog-label">Segment name</span><div class="tog on" id="tog-labels"></div></div>
+        <div class="gtog-row"><span class="gtog-label">Segment distance</span><div class="tog" id="tog-distances"></div></div>
+
+        
+        <div class="gtog-row"><span class="gtog-label">Cities</span><div class="tog on" id="tog-cities"></div></div>
+        <div class="gtog-row"><span class="gtog-label">Covered distance</span><div class="tog" id="tog-covered"></div></div>
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Appearance</div>
+      <div class="appear-row">
+        <span class="appear-label">All segments color</span>
+        <div class="appear-swatch" id="all-color-swatch" style="background:#007bff" title="Apply one color to all segments">
+          <input type="color" id="all-color-input" value="#007bff">
+        </div>
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Segments</div>
+      <div id="track-list"><div class="track-row" id="row-0"><div class="trk-move"><button class="trk-move-btn" title="Move up">▲</button><button class="trk-move-btn" title="Move down">▼</button></div><div class="tog on" id="tog-0"></div><div class="color-swatch" style="background: rgb(0, 123, 255);"><input type="color"></div><div class="trk-info"><input type="text" class="trk-name-input" spellcheck="false"><div class="trk-dist">2.8 km</div></div><span class="trk-del" title="Remove segment">×</span></div><div class="track-row" id="row-1"><div class="trk-move"><button class="trk-move-btn" title="Move up">▲</button><button class="trk-move-btn" title="Move down">▼</button></div><div class="tog on" id="tog-1"></div><div class="color-swatch" style="background: rgb(255, 0, 0);"><input type="color"></div><div class="trk-info"><input type="text" class="trk-name-input" spellcheck="false"><div class="trk-dist">2.8 km</div></div><span class="trk-del" title="Remove segment">×</span></div><div class="track-row" id="row-2"><div class="trk-move"><button class="trk-move-btn" title="Move up">▲</button><button class="trk-move-btn" title="Move down">▼</button></div><div class="tog on" id="tog-2"></div><div class="color-swatch" style="background: rgb(255, 247, 0);"><input type="color"></div><div class="trk-info"><input type="text" class="trk-name-input" spellcheck="false"><div class="trk-dist">2.8 km</div></div><span class="trk-del" title="Remove segment">×</span></div><div class="track-row" id="row-3"><div class="trk-move"><button class="trk-move-btn" title="Move up">▲</button><button class="trk-move-btn" title="Move down">▼</button></div><div class="tog on" id="tog-3"></div><div class="color-swatch" style="background: rgb(255, 119, 34);"><input type="color"></div><div class="trk-info"><input type="text" class="trk-name-input" spellcheck="false"><div class="trk-dist">2.8 km</div></div><span class="trk-del" title="Remove segment">×</span></div><div class="track-row" id="row-4"><div class="trk-move"><button class="trk-move-btn" title="Move up">▲</button><button class="trk-move-btn" title="Move down">▼</button></div><div class="tog on" id="tog-4"></div><div class="color-swatch" style="background: rgb(255, 187, 51);"><input type="color"></div><div class="trk-info"><input type="text" class="trk-name-input" spellcheck="false"><div class="trk-dist">2.8 km</div></div><span class="trk-del" title="Remove segment">×</span></div></div>
+      <button class="btn-all" id="btn-all">Show All</button>
+      <button class="btn-stitch" id="btn-stitch">⛓ Stitch segments</button>
+    </div>
+    <div class="sb-section" id="offtool">
+      <div class="sb-label">Offset tool</div>
+      <select id="off-seg"><option value="-1">— choose a segment —</option><option value="0">1. Gustavo</option><option value="1">2. Cato</option><option value="2">3. Håkon original</option><option value="3">4. Cato (adjusted)</option><option value="4">5. Håkon adjusted</option></select>
+      <div class="off-steps">
+        <div class="off-step active" data-step="1">1 m</div>
+        <div class="off-step" data-step="2">2 m</div>
+        <div class="off-step" data-step="5">5 m</div>
+        <div class="off-step" data-step="10">10 m</div>
+      </div>
+      <div class="off-pad">
+        <button id="off-up" title="Move north">▲</button>
+        <button id="off-left" title="Move west">◀</button>
+        <button id="off-center" title="Reset offset">⟲</button>
+        <button id="off-right" title="Move east">▶</button>
+        <button id="off-down" title="Move south">▼</button>
+      </div>
+      <div id="off-readout">Δ East +0 m &nbsp; Δ North +0 m</div>
+      <button id="off-save" disabled="">Save as new segment…</button>
+      <div id="off-hint">Pick a segment, nudge with the arrows, then save.</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Add GPX File</div>
+      <div class="upload-wrap">
+        <div class="btn-upload">+ Upload GPX</div>
+        <input type="file" id="gpx-input" accept=".gpx" multiple="">
+      </div>
+      <div class="upload-hint">Supports multiple files</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Stats</div>
+      <div id="stats"><div class="stat-row"><span class="sl">Distance</span><span class="sv">13.9 km</span></div><div class="stat-row"><span class="sl">Days shown</span><span class="sv">5</span></div></div>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="fs"><span class="v" id="f-dist">13.93</span><span class="l">total km</span></div>
+  <div class="fs"><span class="v">swimming</span><span class="l">activity</span></div>
+</footer>
+<script>
+var TRACKS = [{"name":"Gustavo","color":"#007bff","pts":[[60.521278,14.217086,265.9,83],[60.521472,14.217176,269.3,87],[60.5215,14.217214,269.3,89],[60.521525,14.21726,269.1,91],[60.521566,14.217308,269.1,98],[60.521626,14.217388,233.8,107],[60.521662,14.217498,233.8,111],[60.521685,14.217611,233.9,115],[60.521709,14.217721,234,117],[60.521733,14.217833,234.1,117],[60.521755,14.217944,234.2,118],[60.521777,14.218053,234.3,118],[60.521801,14.21816,234.4,118],[60.521828,14.218267,234.5,119],[60.521853,14.218371,234.6,118],[60.521876,14.218475,234.7,120],[60.521897,14.218576,234.8,119],[60.521917,14.218684,234.9,119],[60.521935,14.218796,235,120],[60.521949,14.218908,235.1,122],[60.521959,14.219022,235.2,120],[60.521964,14.219133,235.3,120],[60.521967,14.219246,235.4,120],[60.521969,14.21936,235.5,121],[60.521971,14.219471,235.6,122],[60.521971,14.219579,235.7,123],[60.521968,14.21968,235.8,125],[60.521964,14.21978,235.9,126],[60.521956,14.219875,236,125],[60.521945,14.219973,236.1,124],[60.521931,14.22007,236.2,124],[60.521912,14.220168,236.2,127],[60.52189,14.220268,236.3,132],[60.521863,14.220362,236.4,130],[60.521834,14.220458,236.5,131],[60.521803,14.220553,236.6,131],[60.521769,14.220649,236.7,130],[60.521736,14.22074,236.8,128],[60.5217,14.220832,236.9,129],[60.521665,14.220918,237,130],[60.521628,14.221003,236.9,131],[60.521591,14.221087,236.9,131],[60.521554,14.221166,236.8,131],[60.521513,14.221242,236.7,132],[60.521471,14.221311,236.7,131],[60.521427,14.221377,236.7,130],[60.521381,14.221438,236.8,130],[60.521334,14.221495,236.9,129],[60.521286,14.22155,236.9,128],[60.521236,14.221606,237,128],[60.521185,14.221659,237.1,129],[60.521134,14.22171,237.2,129],[60.521082,14.221761,237.3,130],[60.521032,14.221812,237.4,130],[60.520982,14.221865,237.5,127],[60.520934,14.22192,237.6,127],[60.520888,14.221975,237.7,127],[60.52084,14.222028,237.8,128],[60.520794,14.222081,237.9,127],[60.520748,14.222132,238,128],[60.520701,14.222184,238.1,128],[60.520655,14.222233,238.2,128],[60.520606,14.222278,238.3,129],[60.520556,14.222319,238.4,129],[60.520504,14.222357,238.5,129],[60.520451,14.222391,238.6,129],[60.520398,14.222425,238.7,127],[60.520344,14.222458,238.8,126],[60.520288,14.222488,238.9,126],[60.520233,14.222518,239,124],[60.520179,14.222545,239.1,125],[60.520125,14.222573,239.2,125],[60.520074,14.2226,239.3,126],[60.520026,14.22263,239.4,125],[60.519977,14.222661,239.5,125],[60.519929,14.22269,239.5,125],[60.51988,14.222718,239.6,124],[60.51983,14.222748,239.7,124],[60.519778,14.222777,239.8,123],[60.519723,14.222805,239.9,124],[60.519666,14.222834,240,124],[60.519609,14.222866,240.1,123],[60.519552,14.222903,240.2,123],[60.519499,14.222944,240.3,121],[60.519445,14.222985,240.4,119],[60.519394,14.223026,240.5,119],[60.519343,14.223071,240.6,119],[60.519294,14.223119,240.7,119],[60.519248,14.223168,240.8,118],[60.519201,14.223215,240.9,119],[60.519154,14.223257,241,118],[60.519105,14.223291,241.1,119],[60.519056,14.223325,241.2,119],[60.519005,14.223361,241.3,120],[60.518954,14.223401,241.4,120],[60.518904,14.223442,241.5,120],[60.518852,14.223484,241.6,121],[60.518801,14.223525,241.7,121],[60.51875,14.223566,241.8,122],[60.518699,14.22361,241.9,122],[60.518648,14.223655,242,122],[60.518598,14.223698,242.1,123],[60.518548,14.223738,242.2,122],[60.518499,14.223777,242.3,122],[60.51845,14.223817,242.4,122],[60.5184,14.223858,242.5,121],[60.518349,14.223903,242.6,122],[60.5183,14.223951,242.7,123],[60.518252,14.224005,242.8,124],[60.518207,14.224069,242.9,123],[60.518162,14.224134,243,124],[60.518118,14.2242,243.1,124],[60.518073,14.224265,243.2,124],[60.518029,14.224332,243.3,124],[60.517986,14.224401,279,124],[60.517942,14.22447,278.9,123],[60.517898,14.224538,243.6,124],[60.517853,14.2246,243.7,126],[60.517806,14.224663,243.8,129],[60.51776,14.224725,243.9,129],[60.517714,14.224787,243.9,128],[60.517668,14.22485,244,128],[60.517624,14.224911,244.1,128],[60.517578,14.224972,244.1,128],[60.517532,14.225033,244.1,129],[60.517486,14.225094,244,128],[60.51744,14.225155,243.9,127],[60.517395,14.225215,243.9,126],[60.517352,14.225277,243.8,125],[60.517309,14.22534,243.9,126],[60.517267,14.225404,243.9,127],[60.517226,14.225469,244,128],[60.517186,14.225534,244.1,128],[60.517146,14.225602,244.2,127],[60.517107,14.225671,244.3,129],[60.517068,14.225741,244.4,129],[60.517028,14.225812,244.5,130],[60.516988,14.225882,244.6,129],[60.516948,14.225954,244.7,128],[60.516907,14.226024,244.8,128],[60.516867,14.226098,244.9,129],[60.516827,14.22617,245,129],[60.516787,14.226241,245.1,130],[60.516748,14.226312,245.2,130],[60.516709,14.226384,245.3,131],[60.516668,14.226458,245.4,131],[60.516628,14.226531,245.5,131],[60.516588,14.226607,245.6,131],[60.516548,14.22668,245.7,131],[60.516507,14.226754,245.8,134],[60.516466,14.226832,245.9,136],[60.516425,14.226915,246,136],[60.516383,14.226997,246.1,135],[60.516344,14.227075,246.2,135],[60.516304,14.227156,246.3,135],[60.516265,14.227238,246.4,134],[60.516226,14.227323,246.5,134],[60.516188,14.227404,246.6,134],[60.516147,14.227482,246.7,135],[60.516106,14.227554,246.8,134],[60.516066,14.227626,246.9,134],[60.516025,14.227702,247,135],[60.515983,14.227774,247.1,135],[60.515939,14.227844,247.2,131],[60.515895,14.227912,247.2,126],[60.515849,14.227976,247.3,125],[60.515803,14.22804,247.4,126],[60.515759,14.228106,247.5,127],[60.515716,14.228171,247.6,127],[60.515673,14.228232,247.7,128],[60.515632,14.228293,247.8,128],[60.515592,14.228355,247.9,129],[60.515552,14.228415,248,129],[60.515511,14.228478,248.1,130],[60.515469,14.228543,248.2,131],[60.515428,14.228611,248.3,132],[60.515385,14.228682,248.4,132],[60.515342,14.228754,248.5,132],[60.515298,14.228831,248.6,134],[60.515257,14.228909,248.7,137],[60.515216,14.228988,248.8,137],[60.515178,14.229068,248.9,137],[60.515141,14.229148,249,137],[60.515106,14.229225,249.1,136],[60.51507,14.229301,249.2,136],[60.515034,14.229377,249.3,135],[60.514997,14.22945,249.4,136],[60.514959,14.229523,249.5,135],[60.514919,14.229596,249.6,136],[60.514878,14.229668,249.7,135],[60.514838,14.229746,249.8,133],[60.514799,14.229826,249.9,133],[60.514761,14.22991,250,132],[60.514725,14.229994,250.1,134],[60.51469,14.230078,250.2,135],[60.514656,14.23016,250.3,134],[60.514623,14.230237,250.4,134],[60.514589,14.230317,250.5,135],[60.514553,14.230396,250.6,134],[60.514516,14.230472,250.7,133],[60.514478,14.230547,250.8,133],[60.514441,14.230623,250.9,132],[60.514406,14.230701,251,132],[60.514371,14.230779,251.1,132],[60.514336,14.230859,251.2,131],[60.514303,14.23094,251.3,131],[60.514275,14.231017,251.4,130],[60.514248,14.231096,251.5,130],[60.514221,14.231177,251.6,129],[60.514196,14.231256,251.7,129],[60.514168,14.231341,251.8,129],[60.514141,14.231431,251.9,130],[60.514115,14.231526,252,130],[60.514089,14.231625,252,129],[60.514063,14.231727,252.1,131],[60.514037,14.231828,252.2,131],[60.514011,14.23193,252.3,130],[60.513986,14.232029,252.5,131],[60.51396,14.232125,252.6,130],[60.513934,14.23222,252.7,131],[60.513908,14.232311,252.8,133],[60.513883,14.232404,252.9,133],[60.51386,14.232496,253,132],[60.513838,14.232592,253.1,133],[60.513816,14.232686,253.3,133],[60.513795,14.232782,253.5,132],[60.513775,14.232874,253.7,133],[60.513756,14.232968,253.8,133],[60.513737,14.23306,253.9,133],[60.513715,14.233155,253.9,132],[60.513692,14.233247,253.9,130],[60.513667,14.233343,254,129],[60.51364,14.233437,254,128],[60.513611,14.233532,254.1,128],[60.513582,14.233629,254.1,123],[60.513552,14.233724,254.2,122],[60.513521,14.233818,254.3,122],[60.513491,14.233912,254.4,122],[60.513463,14.234003,254.5,122],[60.513436,14.234089,254.7,122],[60.513409,14.234174,254.8,123],[60.513382,14.234255,254.9,123],[60.513357,14.234338,255,124],[60.513331,14.234421,255,125],[60.513304,14.234508,255.1,126],[60.513276,14.23459,255.2,128],[60.513245,14.234675,255.3,128],[60.513213,14.234761,255.4,128],[60.513179,14.234851,255.5,129],[60.513146,14.234941,255.6,129],[60.513111,14.235031,255.7,129],[60.513075,14.23512,255.8,129],[60.513039,14.235209,255.9,130],[60.513003,14.235299,256,131],[60.512967,14.235388,256.1,131],[60.51293,14.235477,256.2,133],[60.512893,14.235562,256.3,133],[60.512855,14.23565,256.3,132],[60.512818,14.235737,256.5,131],[60.512782,14.235826,256.6,132],[60.512746,14.235912,256.7,136],[60.51271,14.235999,256.8,137],[60.512674,14.236087,257,137],[60.512638,14.236174,257.1,137],[60.512602,14.236265,257.1,136],[60.512569,14.236355,257.1,135],[60.512537,14.236447,257.2,136],[60.512508,14.236542,257.3,140],[60.512479,14.236636,257.5,141],[60.512452,14.236729,257.6,141],[60.512427,14.236826,257.7,143],[60.512405,14.236924,257.9,143],[60.512388,14.23702,258,143],[60.512372,14.237118,258.2,142],[60.512356,14.237219,258.2,140],[60.512338,14.237318,258.2,140],[60.51232,14.237422,258.3,140],[60.5123,14.237522,258.3,140],[60.51228,14.237619,258.4,140],[60.512256,14.237714,258.5,140],[60.512229,14.237806,258.6,139],[60.512199,14.237894,258.7,139],[60.512168,14.237975,258.8,140],[60.512137,14.238049,258.9,140],[60.512104,14.238121,259,140],[60.512071,14.23819,297.1,138],[60.512037,14.238259,297.2,136],[60.512005,14.238324,297.5,134],[60.511972,14.238396,297.4,134],[60.511937,14.238468,297.2,134],[60.511901,14.238539,259.6,134],[60.511861,14.238613,259.7,134],[60.511818,14.238685,259.8,134],[60.511773,14.238756,259.9,135],[60.511727,14.238825,260,134],[60.51168,14.238893,260.1,135],[60.511632,14.238957,260.2,134],[60.511585,14.239017,260.4,133],[60.511537,14.23908,260.5,134],[60.511492,14.239144,260.7,134],[60.51145,14.239207,260.8,133],[60.51141,14.239271,260.8,133],[60.511369,14.239335,260.9,134],[60.511328,14.239398,261,135],[60.511287,14.239458,261.2,134],[60.511247,14.239519,261.4,133],[60.511208,14.23958,261.6,132],[60.511169,14.239638,261.8,133],[60.51113,14.2397,261.8,133],[60.511092,14.239766,261.9,133],[60.511056,14.239831,261.8,133],[60.51102,14.239904,261.9,135],[60.510985,14.239989,261.9,135],[60.510951,14.240078,262,135],[60.510916,14.24017,262,134],[60.510881,14.240262,262,135],[60.510845,14.24035,262.1,142],[60.510807,14.240433,262.2,140],[60.510768,14.240509,262.3,140],[60.510729,14.240574,262.4,140],[60.510691,14.24062,262.5,139],[60.510654,14.240638,262.6,138],[60.510617,14.240642,262.7,139],[60.510577,14.240649,262.8,139],[60.510549,14.240587,262.9,139],[60.51053,14.240478,263.1,139],[60.510514,14.240378,263.4,138],[60.510497,14.240279,263.8,137],[60.510482,14.240167,264.4,145],[60.510469,14.240058,264.8,145],[60.510455,14.239958,265.1,146],[60.510441,14.239856,265.3,146],[60.510428,14.239759,265.4,146],[60.510414,14.239666,265.5,146],[60.510401,14.239572,265.5,144],[60.510388,14.239481,265.5,140],[60.510374,14.239392,265.6,138],[60.510359,14.239302,265.6,138],[60.510344,14.239211,265.6,138],[60.510331,14.239123,265.7,139],[60.510319,14.23903,265.7,139],[60.510306,14.238935,265.8,139],[60.51029,14.238835,265.9,138],[60.510273,14.238732,266,139],[60.510258,14.238631,266,138],[60.510243,14.238533,266.1,137],[60.510229,14.238435,266.2,136],[60.510213,14.238338,266.3,136],[60.510196,14.23824,266.4,137],[60.510179,14.238143,266.4,138],[60.510162,14.238051,266.5,141],[60.510147,14.237962,266.6,142],[60.51013,14.237873,266.6,141],[60.510113,14.237786,266.6,141],[60.510095,14.237696,266.7,140],[60.510077,14.237604,266.7,141],[60.510059,14.237519,266.7,140],[60.510042,14.237438,266.7,140],[60.510024,14.237355,266.7,140],[60.510005,14.237271,266.7,140],[60.509986,14.237187,266.6,140],[60.509967,14.237103,266.6,139],[60.509946,14.237022,266.6,139],[60.509927,14.236945,266.6,139],[60.509907,14.236863,266.6,139],[60.509883,14.236773,266.5,139],[60.509861,14.236682,266.5,140],[60.509839,14.236593,266.4,140],[60.509815,14.236503,266.3,141],[60.509789,14.236406,266.2,141],[60.509763,14.236308,266.1,141],[60.509734,14.236211,266.1,141],[60.509703,14.236114,266,140],[60.509671,14.236023,266,138],[60.509635,14.235933,266.1,137],[60.509597,14.235846,266.2,137],[60.509561,14.235759,266.2,137],[60.509525,14.235679,266.2,137],[60.509491,14.2356,266.2,138],[60.509455,14.235519,266.2,138],[60.509419,14.235442,266.1,141],[60.509385,14.235369,266,143],[60.509355,14.235301,265.9,142],[60.509324,14.235234,265.8,142],[60.509291,14.235168,265.8,142],[60.509256,14.235104,265.7,142],[60.509218,14.235042,265.7,143],[60.509182,14.234983,265.7,143],[60.509146,14.234925,265.7,141],[60.509109,14.234866,265.7,138],[60.509071,14.234806,265.7,139],[60.509032,14.234745,265.7,138],[60.508994,14.234683,265.7,137],[60.508957,14.234621,265.7,137],[60.50892,14.234561,265.7,137],[60.508884,14.2345,265.6,137],[60.508846,14.234438,265.6,134],[60.508808,14.234377,265.6,133],[60.50877,14.234319,265.6,133],[60.508732,14.23426,265.6,134],[60.508694,14.234199,265.6,134],[60.508657,14.234138,265.7,132],[60.508619,14.234076,265.7,131],[60.508581,14.234011,265.7,133],[60.508542,14.233944,265.8,133],[60.508501,14.233874,265.8,135],[60.508462,14.233803,265.9,135],[60.508423,14.233733,265.9,134],[60.508386,14.233666,265.9,135],[60.508347,14.2336,265.9,135],[60.508306,14.233534,265.9,135],[60.508264,14.233466,265.9,134],[60.508221,14.233401,265.9,133],[60.508182,14.233339,265.9,133],[60.508143,14.233279,265.9,133],[60.508102,14.233219,265.9,133],[60.508059,14.23316,265.8,133],[60.508018,14.233104,265.8,133],[60.507978,14.23305,265.7,133],[60.507938,14.232996,265.7,133],[60.507898,14.232941,265.7,137],[60.507857,14.232887,265.6,139],[60.507814,14.232834,265.6,140],[60.507766,14.232779,265.6,139],[60.507719,14.232725,263.2,140],[60.507672,14.23267,258.4,140],[60.507625,14.23261,253.4,140],[60.50758,14.232551,248.7,140],[60.507538,14.232493,244.1,139],[60.507498,14.232435,239.7,140],[60.507461,14.232374,235.6,140],[60.507425,14.232316,236.8,140],[60.507393,14.232259,237.9,141],[60.507361,14.232201,239,141],[60.507329,14.232144,240.1,142],[60.507296,14.232089,241.2,142],[60.507259,14.232033,242.4,143],[60.507221,14.231978,243.6,142],[60.507183,14.231924,244.8,141],[60.507145,14.231868,246,140],[60.507105,14.23181,247.3,139],[60.507062,14.231753,248.6,137],[60.507019,14.231698,250,135],[60.506977,14.231645,251.2,135],[60.506934,14.231595,252.5,135],[60.506887,14.231545,253.9,136],[60.50684,14.231495,255.3,137],[60.506794,14.231448,256.6,137],[60.50675,14.231404,257.8,138],[60.506708,14.231361,259,138],[60.506664,14.231317,259.3,139],[60.50662,14.231274,259.4,140],[60.506577,14.231234,259.5,137],[60.506534,14.231192,259.6,137],[60.506493,14.231152,259.7,137],[60.506451,14.231111,302.3,137],[60.506406,14.231068,260,137],[60.50636,14.231026,302.8,136],[60.506317,14.230985,260.6,137],[60.506275,14.230944,260.5,136],[60.506232,14.230902,260.8,135],[60.50619,14.230857,261.2,136],[60.506145,14.23081,261.7,137],[60.506097,14.230761,261.9,138],[60.50605,14.230713,299,138],[60.506004,14.230665,298.6,138],[60.505956,14.230616,298.6,139],[60.505908,14.230566,262.6,138],[60.505858,14.230517,293.5,137],[60.50581,14.230472,262.8,136],[60.505762,14.23043,292,137],[60.505714,14.230393,262.9,136],[60.505664,14.230359,287,136],[60.505614,14.230326,286,136],[60.505564,14.230293,285.9,139],[60.505516,14.230264,262.9,141],[60.505472,14.23024,286.6,142],[60.505433,14.230218,262.6,143],[60.5054,14.2302,262.6,144],[60.505358,14.230158,279.4,143]]},{"name":"Cato","color":"#ff0000","pts":[[60.521334,14.217189,265.7,0],[60.521419,14.217249,241.8,0],[60.521511,14.217333,236.7,0],[60.521601,14.217442,239.1,0],[60.521682,14.21757,239,0],[60.52175,14.217708,239,0],[60.521803,14.21785,239,0],[60.521848,14.217984,239,0],[60.521886,14.21811,239,0],[60.521919,14.218238,239,0],[60.521946,14.218369,239,0],[60.521966,14.218506,239,0],[60.521977,14.218648,239,0],[60.521982,14.218795,239,0],[60.521981,14.21894,239,0],[60.521977,14.219083,239,0],[60.52197,14.21922,239,0],[60.521961,14.21935,239,0],[60.521949,14.219476,239,0],[60.521938,14.2196,239,0],[60.521933,14.21966,239,0],[60.521919,14.219805,239,0],[60.521901,14.219947,239,0],[60.521879,14.220082,239,0],[60.521853,14.220212,239,0],[60.521824,14.220336,239,0],[60.521792,14.220447,239,0],[60.521756,14.220546,239,0],[60.521718,14.220623,239,0],[60.521679,14.220697,239,0],[60.521638,14.220771,239,0],[60.521594,14.220847,239,0],[60.521547,14.220924,238.9,0],[60.521499,14.221004,238.7,0],[60.521449,14.221084,238.4,0],[60.521397,14.221161,238.2,0],[60.521344,14.22124,238.2,0],[60.521293,14.221321,238.2,0],[60.521242,14.221401,238.2,0],[60.521192,14.221478,238.2,0],[60.521139,14.221552,238.1,0],[60.521085,14.22162,238.1,0],[60.52103,14.22168,238,0],[60.520971,14.221731,238,0],[60.520909,14.221773,238,0],[60.520845,14.221808,238,0],[60.520779,14.221838,238,0],[60.520713,14.221866,238,0],[60.520645,14.221893,238,0],[60.520578,14.221925,238,0],[60.520512,14.221961,238,0],[60.520449,14.221997,238,0],[60.520388,14.222035,238,0],[60.520331,14.222073,238,0],[60.520277,14.22211,238,0],[60.520225,14.222147,238,0],[60.520178,14.222196,238,0],[60.520134,14.222253,238,0],[60.520091,14.222305,238,0],[60.520052,14.222426,238,0],[60.520007,14.222501,238,0],[60.519965,14.222576,238,0],[60.519921,14.22265,238,0],[60.519874,14.222706,238,0],[60.519824,14.22274,238,0],[60.519774,14.222774,238,0],[60.519723,14.222814,238,0],[60.519667,14.222861,238,0],[60.519608,14.222913,238,0],[60.519548,14.222966,238,0],[60.519485,14.223017,238,0],[60.519418,14.223066,238,0],[60.519349,14.223111,238,0],[60.519281,14.223152,238,0],[60.519215,14.22319,238,0],[60.519149,14.223225,238,0],[60.519086,14.22326,238,0],[60.519026,14.223297,238,0],[60.51897,14.223335,238,0],[60.518915,14.223377,238,0],[60.518861,14.223423,238,0],[60.518807,14.223471,238,0],[60.518752,14.22352,238,0],[60.518698,14.223568,238,0],[60.518645,14.223617,238,0],[60.518592,14.223666,238,0],[60.518541,14.223716,238,0],[60.518491,14.223766,238,0],[60.518443,14.223817,238,0],[60.518394,14.22387,238,0],[60.518344,14.223925,238,0],[60.518292,14.223983,238,0],[60.51824,14.224045,238,0],[60.518188,14.224107,238,0],[60.518136,14.224169,238,0],[60.518085,14.224233,238,0],[60.518036,14.2243,238,0],[60.517988,14.224372,273.8,0],[60.517941,14.224451,273.4,0],[60.517893,14.224534,238,0],[60.517842,14.224623,238,0],[60.517791,14.224714,238,0],[60.517739,14.224808,238,0],[60.517686,14.224898,238,0],[60.517634,14.22498,237.9,0],[60.517583,14.225054,237.8,0],[60.517533,14.22512,237.6,0],[60.517484,14.225182,237.4,0],[60.517433,14.225244,237.2,0],[60.51738,14.22532,237.1,0],[60.517329,14.225414,237,0],[60.517283,14.225512,237,0],[60.517239,14.22561,237,0],[60.517198,14.225709,237,0],[60.51716,14.225803,237,0],[60.517124,14.225887,237.1,0],[60.51709,14.225944,237.1,0],[60.517053,14.225981,237.1,0],[60.51701,14.226014,237.1,0],[60.516964,14.226046,237,0],[60.516914,14.226083,237,0],[60.516859,14.226128,237,0],[60.516804,14.226182,237,0],[60.516749,14.226244,237,0],[60.516695,14.226314,237,0],[60.516643,14.226386,237,0],[60.516592,14.226464,237,0],[60.516542,14.226551,237,0],[60.516494,14.226649,237,0],[60.516448,14.226748,237,0],[60.516403,14.226841,237,0],[60.516359,14.226929,237,0],[60.516316,14.227012,237,0],[60.516274,14.227084,237,0],[60.516236,14.227137,237,0],[60.516199,14.227173,237,0],[60.516161,14.227206,237,0],[60.516122,14.227245,237,0],[60.516079,14.22729,237,0],[60.516033,14.227344,237,0],[60.515982,14.22741,237,0],[60.515926,14.227489,237,0],[60.515864,14.22758,237,0],[60.515797,14.22768,237,0],[60.515729,14.227785,237,0],[60.515659,14.227894,237,0],[60.515592,14.228003,237,0],[60.515527,14.228109,237,0],[60.515469,14.22821,237,0],[60.515418,14.228303,237,0],[60.515376,14.22839,237,0],[60.515342,14.228475,237,0],[60.515317,14.228555,237,0],[60.515295,14.228632,237,0],[60.515274,14.228708,237,0],[60.515253,14.228786,237,0],[60.51523,14.22887,237,0],[60.515203,14.228959,237,0],[60.515169,14.229054,237,0],[60.515129,14.229159,237,0],[60.515085,14.229269,237,0],[60.515039,14.22938,237,0],[60.514993,14.229491,237,0],[60.514946,14.229596,237,0],[60.514899,14.229694,237,0],[60.514853,14.229783,237,0],[60.51481,14.229861,237,0],[60.514771,14.22993,237.1,0],[60.514733,14.229995,237,0],[60.514696,14.230056,237,0],[60.514661,14.230117,237,0],[60.514629,14.230181,237,0],[60.514596,14.23025,237,0],[60.514562,14.230328,237,0],[60.514525,14.230419,237,0],[60.514487,14.230521,237,0],[60.514445,14.230634,237,0],[60.5144,14.230762,237,0],[60.514353,14.230907,237,0],[60.514306,14.231061,237,0],[60.51426,14.231218,237,0],[60.514222,14.231351,237.1,0],[60.514222,14.231351,237.1,0],[60.514185,14.231501,237.1,0],[60.514145,14.231671,237,0],[60.514111,14.231829,237,0],[60.514082,14.231968,237,0],[60.514057,14.232091,237.1,0],[60.514036,14.232208,237.2,0],[60.514018,14.232316,237.3,0],[60.514004,14.232396,237.3,0],[60.513991,14.232489,237.3,0],[60.513977,14.232591,237.4,0],[60.513958,14.232704,237.7,0],[60.513936,14.232819,237.9,0],[60.513911,14.232934,238.2,0],[60.513882,14.233048,238.2,0],[60.513847,14.233158,237.9,0],[60.513807,14.233259,237.7,0],[60.513765,14.233353,237.5,0],[60.513723,14.233448,237.3,0],[60.513682,14.233546,237.2,0],[60.513641,14.233649,237.1,0],[60.513602,14.23376,237,0],[60.513566,14.233878,237,0],[60.513533,14.233996,237.1,0],[60.513501,14.234115,237.2,0],[60.513472,14.234232,237.3,0],[60.513443,14.234341,237.3,0],[60.513415,14.234449,237.3,0],[60.513388,14.234557,237.1,0],[60.513361,14.234663,237.1,0],[60.51333,14.234763,237.1,0],[60.513297,14.234856,237,0],[60.513262,14.234943,237,0],[60.513224,14.235023,237,0],[60.513184,14.235093,237,0],[60.513142,14.235152,237.1,0],[60.5131,14.235206,237.1,0],[60.51306,14.235259,237.1,0],[60.513019,14.235316,237.1,0],[60.512978,14.235378,237.1,0],[60.51294,14.235447,237.1,0],[60.512902,14.23552,237,0],[60.512865,14.235601,237,0],[60.512829,14.235692,237,0],[60.512793,14.235791,237,0],[60.512758,14.235898,237.1,0],[60.512724,14.236012,237.1,0],[60.512689,14.23613,237.1,0],[60.512655,14.236254,237.1,0],[60.51262,14.236378,237,0],[60.512585,14.2365,237,0],[60.512549,14.236616,237,0],[60.512514,14.236725,237,0],[60.512481,14.23683,237.1,0],[60.51245,14.236932,237.1,0],[60.51242,14.23703,237.2,0],[60.512391,14.237126,237.2,0],[60.512363,14.23722,237.2,0],[60.512333,14.237314,237.1,0],[60.512302,14.237407,237.1,0],[60.51227,14.237499,237,0],[60.512234,14.237587,237,0],[60.512197,14.237675,237.1,0],[60.512159,14.237763,237.1,0],[60.512122,14.23785,237.1,0],[60.512084,14.237936,237.1,0],[60.512046,14.238024,237,0],[60.512007,14.238115,274.9,0],[60.511967,14.238212,274.9,0],[60.511925,14.238314,275.1,0],[60.511883,14.238419,237,0],[60.511839,14.238527,237,0],[60.511795,14.238637,237,0],[60.511752,14.238743,237,0],[60.511711,14.238843,237,0],[60.511671,14.238934,237,0],[60.511631,14.239021,237.1,0],[60.511591,14.239101,237.1,0],[60.511551,14.239176,237.1,0],[60.51151,14.239244,237.1,0],[60.511468,14.239311,237.1,0],[60.511424,14.239378,237.1,0],[60.511378,14.239446,237.1,0],[60.511333,14.239515,237.1,0],[60.511287,14.239585,237.2,0],[60.511241,14.239658,237.2,0],[60.511193,14.239736,237.3,0],[60.511144,14.239813,237.3,0],[60.511094,14.23989,237.2,0],[60.511043,14.23997,237.1,0],[60.51099,14.240052,237.1,0],[60.510938,14.240134,237.1,0],[60.510884,14.240215,237,0],[60.510829,14.240294,237.1,0],[60.510775,14.240374,237,0],[60.51072,14.240448,237,0],[60.510666,14.240509,237,0],[60.510612,14.240551,237,0],[60.510558,14.24057,237,0],[60.510508,14.240559,237,0],[60.510462,14.240516,237,0],[60.510422,14.240444,237.2,0],[60.510389,14.24035,237.4,0],[60.510362,14.240243,237.8,0],[60.510342,14.240128,238,0],[60.510327,14.24001,238.2,0],[60.510314,14.239899,238.2,0],[60.510304,14.239798,238.1,0],[60.510294,14.239701,238.1,0],[60.510284,14.239606,238,0],[60.510271,14.239514,238,0],[60.510254,14.239424,237.9,0],[60.510234,14.239333,237.8,0],[60.510215,14.239239,237.7,0],[60.510196,14.239142,237.6,0],[60.510178,14.239041,237.5,0],[60.510161,14.238938,275.2,0],[60.510146,14.238832,274.8,0],[60.510133,14.238725,237.3,0],[60.51012,14.238622,237.3,0],[60.510105,14.238521,237.4,0],[60.510088,14.238425,237.5,0],[60.51007,14.238334,237.7,0],[60.51005,14.238245,238,0],[60.510026,14.238157,238,0],[60.510003,14.238067,238,0],[60.509981,14.237974,237.9,0],[60.50996,14.237879,237.8,0],[60.509938,14.23778,237.7,0],[60.509915,14.237675,237.6,0],[60.509893,14.237566,237.5,0],[60.509871,14.237454,237.4,0],[60.509849,14.237339,237.3,0],[60.509829,14.237224,237.3,0],[60.509805,14.237132,237.3,0],[60.509775,14.237026,237.5,0],[60.509746,14.236915,237.7,0],[60.509707,14.236837,237.7,0],[60.509672,14.236775,237.6,0],[60.509641,14.236707,237.6,0],[60.509606,14.236648,237.4,0],[60.509579,14.23659,237.3,0],[60.509555,14.23653,237.3,0],[60.509531,14.236462,237.2,0],[60.509508,14.236389,237.2,0],[60.509484,14.236308,237.2,0],[60.509459,14.236221,237.4,0],[60.509435,14.23613,237.5,0],[60.509411,14.236035,237.6,0],[60.509387,14.235939,237.7,0],[60.509363,14.235846,237.6,0],[60.509338,14.235756,237.6,0],[60.509313,14.235671,237.6,0],[60.509287,14.235587,237.8,0],[60.509261,14.235505,238.1,0],[60.509233,14.235423,238.2,0],[60.509201,14.235346,238.2,0],[60.509164,14.235266,238,0],[60.509122,14.235183,238,0],[60.509074,14.235102,238,0],[60.509024,14.23502,238,0],[60.508972,14.234941,238.2,0],[60.50892,14.234863,238.2,0],[60.508871,14.234786,238,0],[60.508825,14.234715,237.9,0],[60.508783,14.234648,237.7,0],[60.508745,14.234581,237.9,0],[60.508708,14.234517,237.9,0],[60.508668,14.23445,238.2,0],[60.508628,14.234379,238.2,0],[60.508587,14.234305,238.5,0],[60.508545,14.234226,238.8,0],[60.508504,14.234141,239.1,0],[60.508462,14.234051,239.5,0],[60.508421,14.23396,239.7,0],[60.508382,14.233874,240,0],[60.508345,14.23379,240.3,0],[60.508307,14.233714,240.5,0],[60.508269,14.233651,240.5,0],[60.508231,14.233603,240.5,0],[60.508194,14.233561,240.3,0],[60.508158,14.233517,240.3,0],[60.50812,14.233477,239.9,0],[60.508082,14.23344,239.7,0],[60.508046,14.233393,239.6,0],[60.508013,14.233338,240,0],[60.507978,14.233276,240,0],[60.507941,14.233214,240.3,0],[60.507901,14.233155,240.4,0],[60.507863,14.233091,240.3,0],[60.507823,14.233026,240.2,0],[60.507781,14.232964,239.9,0],[60.507736,14.232904,239.9,0],[60.507691,14.232841,239.8,0],[60.507648,14.232776,240.1,0],[60.507605,14.232711,240.1,0],[60.507559,14.232646,240.3,0],[60.507513,14.232582,240.3,0],[60.507464,14.232518,240.6,0],[60.507416,14.232452,240.6,0],[60.507368,14.232389,240.9,0],[60.507319,14.232328,240.9,0],[60.507272,14.232268,241.2,0],[60.507226,14.232209,241.2,0],[60.507181,14.232151,241.1,0],[60.507138,14.232093,241.5,0],[60.507096,14.232034,241.5,0],[60.507055,14.231973,241.6,0],[60.507014,14.231911,241.8,0],[60.506974,14.231848,241.8,0],[60.506933,14.231786,242,0],[60.506892,14.231726,242,0],[60.50685,14.231667,242,0],[60.506808,14.23161,241.9,0],[60.506764,14.231554,241.6,0],[60.506718,14.231498,241.6,0],[60.506669,14.231442,241.3,0],[60.506617,14.23139,241.3,0],[60.506565,14.231341,241.2,0],[60.506512,14.231292,241.3,0],[60.506458,14.231247,241.2,0],[60.506402,14.231203,241.3,0],[60.506348,14.231159,241.2,0],[60.506297,14.231114,242,0],[60.506248,14.231065,242.4,0],[60.506201,14.231013,242.9,0],[60.506155,14.230959,243.4,0],[60.50611,14.230904,243.8,0],[60.506066,14.23085,244.5,0],[60.506022,14.230799,280.5,0],[60.505977,14.230747,244.8,0],[60.505933,14.230696,245,0],[60.505887,14.230647,245.1,0],[60.505839,14.230601,245.3,0],[60.505791,14.230555,245.7,0],[60.505743,14.230508,245.7,0],[60.505694,14.230461,245.8,0],[60.505642,14.230417,269.5,0],[60.505588,14.230377,245.8,0],[60.505534,14.230341,245.9,0],[60.505482,14.230309,245.5,0],[60.505434,14.230281,245.5,0],[60.505393,14.230256,245.4,0],[60.505362,14.230228,245.1,0],[60.505332,14.230204,245.2,0],[60.505318,14.230176,245.1,0],[60.50532,14.230166,245.4,0]]},{"name":"Håkon original","color":"#fff700","pts":[[60.521623,14.217189,227.6,0],[60.521715,14.217463,233.8,0],[60.521719,14.217524,232.2,0],[60.521719,14.217613,231.2,0],[60.521723,14.217722,230.4,0],[60.521734,14.217854,230,0],[60.521746,14.21799,229.8,0],[60.521768,14.218121,230,0],[60.521793,14.218257,230.4,0],[60.521809,14.218399,230.4,0],[60.521838,14.218534,230.2,0],[60.521851,14.218675,230.2,0],[60.521856,14.218815,230,0],[60.521856,14.218954,230,0],[60.521854,14.219093,229.8,0],[60.521871,14.219244,229.6,0],[60.521881,14.219389,229.2,0],[60.521881,14.219519,229,0],[60.521889,14.219642,228.8,0],[60.521887,14.219763,228.6,0],[60.521859,14.219869,228.4,0],[60.521829,14.219989,228.6,0],[60.5218,14.220124,229,0],[60.521761,14.220252,229.2,0],[60.521713,14.220353,229.6,0],[60.521674,14.220474,230,0],[60.521633,14.220579,230.6,0],[60.521596,14.220673,231.2,0],[60.521561,14.220764,231.6,0],[60.52152,14.220847,231.8,0],[60.521468,14.220911,232,0],[60.521418,14.220988,232.2,0],[60.521369,14.221072,232.4,0],[60.521323,14.221169,232.4,0],[60.521267,14.221247,232.2,0],[60.52121,14.221318,232,0],[60.521156,14.221372,232,0],[60.521097,14.221418,232.2,0],[60.52104,14.221474,232.2,0],[60.520984,14.22153,232,0],[60.52094,14.221612,231.6,0],[60.520892,14.221681,231.4,0],[60.520834,14.221717,231.2,0],[60.52077,14.221758,231,0],[60.520702,14.221815,230.8,0],[60.520633,14.221868,230.8,0],[60.520566,14.221905,231,0],[60.520497,14.221942,231,0],[60.520426,14.221988,230.6,0],[60.520362,14.222008,230.2,0],[60.520304,14.222055,230.2,0],[60.520248,14.222101,230.8,0],[60.520195,14.222174,231.6,0],[60.520138,14.22223,231.8,0],[60.520076,14.222276,232,0],[60.520009,14.22233,232,0],[60.519948,14.222385,232.4,0],[60.519885,14.222431,232.4,0],[60.51982,14.222454,231.4,0],[60.519741,14.222454,229.4,0],[60.519667,14.222444,227.6,0],[60.519594,14.222427,225.8,0],[60.519516,14.222437,223.8,0],[60.519427,14.222474,221.6,0],[60.51934,14.222507,219.4,0],[60.519266,14.222526,218,0],[60.519211,14.222538,217.4,0],[60.519158,14.222557,217.2,0],[60.519104,14.222597,216.4,0],[60.519048,14.222687,215,0],[60.518988,14.222748,213.4,0],[60.518928,14.222796,212,0],[60.518862,14.22283,210.6,0],[60.518787,14.222877,209,0],[60.518708,14.222936,207.8,0],[60.518636,14.223005,206.8,0],[60.518568,14.223052,205.8,0],[60.518507,14.223101,204.8,0],[60.518451,14.223151,203.4,0],[60.518398,14.22318,202.6,0],[60.518355,14.223249,202.6,0],[60.518312,14.223353,202.6,0],[60.518256,14.223418,202.4,0],[60.518196,14.223444,201.6,0],[60.518139,14.223458,200.4,0],[60.518079,14.223472,199,0],[60.518016,14.223533,197.6,0],[60.517946,14.223604,196.4,0],[60.5179,14.223655,196.6,0],[60.517875,14.223736,197.8,0],[60.517851,14.223838,199,0],[60.517812,14.223962,199.2,0],[60.51776,14.224095,198,0],[60.517713,14.224206,196.4,0],[60.517655,14.224277,195.2,0],[60.517601,14.224362,194.6,0],[60.51753,14.224434,193.8,0],[60.517463,14.224519,193.2,0],[60.517413,14.224603,192.6,0],[60.517369,14.224637,192.2,0],[60.517335,14.224668,192.2,0],[60.517299,14.224725,192.4,0],[60.517258,14.224811,192.4,0],[60.517208,14.224917,192.4,0],[60.51714,14.225005,192.6,0],[60.517086,14.225099,192.8,0],[60.517039,14.225196,192.8,0],[60.516999,14.225291,193,0],[60.516957,14.225376,193,0],[60.516913,14.225462,193,0],[60.516871,14.225547,193,0],[60.51684,14.225623,192.8,0],[60.5168,14.22568,193.2,0],[60.516754,14.225732,193.6,0],[60.516706,14.225817,193.8,0],[60.516658,14.22591,193.6,0],[60.516618,14.226,193.4,0],[60.516581,14.226051,193.4,0],[60.516542,14.226108,193.4,0],[60.516485,14.22616,193,0],[60.516426,14.226239,192.2,0],[60.516361,14.226323,191.2,0],[60.516298,14.226428,190.2,0],[60.516241,14.226551,189.4,0],[60.516175,14.226653,188.4,0],[60.516119,14.226762,187.8,0],[60.516057,14.226829,187.6,0],[60.516006,14.22693,187.6,0],[60.515948,14.227015,187.8,0],[60.515893,14.227098,187.8,0],[60.515835,14.227168,187.6,0],[60.515777,14.227223,187.4,0],[60.51572,14.227293,187.2,0],[60.515663,14.227374,186.8,0],[60.515608,14.227459,186.4,0],[60.515561,14.227554,186,0],[60.515515,14.227644,186.4,0],[60.515463,14.227694,187.4,0],[60.515408,14.227723,188.4,0],[60.515361,14.227745,189.2,0],[60.515312,14.22777,190.2,0],[60.515269,14.227799,191.8,0],[60.515233,14.227845,193.6,0],[60.515206,14.227917,195.4,0],[60.515171,14.228027,196.4,0],[60.515132,14.22814,196.8,0],[60.515074,14.228207,197,0],[60.515017,14.228317,196.8,0],[60.51496,14.228412,196.8,0],[60.514899,14.22849,196.8,0],[60.514848,14.228585,197,0],[60.514799,14.228677,197.2,0],[60.514751,14.228759,197.4,0],[60.514724,14.228852,198.2,0],[60.514708,14.228963,199.2,0],[60.514687,14.229081,199.4,0],[60.514647,14.229172,199.2,0],[60.514598,14.229236,199,0],[60.514556,14.22933,199,0],[60.514531,14.229442,199.4,0],[60.514512,14.22956,199.8,0],[60.514476,14.229665,200.2,0],[60.514429,14.229785,200.4,0],[60.514381,14.229887,200.4,0],[60.51433,14.229987,199.8,0],[60.514284,14.230094,199.6,0],[60.514241,14.230196,199.4,0],[60.514209,14.230324,199.2,0],[60.514161,14.230434,198.4,0],[60.514101,14.230549,197.4,0],[60.514051,14.230658,196.4,0],[60.514013,14.230763,196.2,0],[60.513986,14.230873,196.2,0],[60.51396,14.230983,196.2,0],[60.513932,14.231101,196,0],[60.513899,14.23122,195.4,0],[60.513852,14.231325,194.2,0],[60.513811,14.231441,193,0],[60.513775,14.231546,192.2,0],[60.513752,14.231648,192.4,0],[60.513734,14.231763,192.8,0],[60.513711,14.23189,193.2,0],[60.513683,14.232006,193.4,0],[60.513661,14.232133,193.6,0],[60.513637,14.232264,193.6,0],[60.513595,14.232361,193.4,0],[60.513554,14.23248,192.8,0],[60.513536,14.232604,192.6,0],[60.513517,14.232706,192.6,0],[60.513501,14.232804,192.8,0],[60.513495,14.232919,193.2,0],[60.513468,14.233033,193.8,0],[60.513441,14.233157,194.4,0],[60.513404,14.233269,194.6,0],[60.51336,14.233379,194.4,0],[60.51332,14.233494,194,0],[60.513285,14.233594,194,0],[60.513256,14.233687,194,0],[60.513227,14.233793,194.2,0],[60.513194,14.233889,194.2,0],[60.513162,14.234,194,0],[60.513137,14.234137,193.2,0],[60.513102,14.234258,192.6,0],[60.513061,14.23436,192.6,0],[60.513018,14.234472,193.2,0],[60.512983,14.234609,194,0],[60.512942,14.234744,194,0],[60.512921,14.23487,193.8,0],[60.512894,14.234985,193.6,0],[60.512865,14.235071,193.4,0],[60.512824,14.235101,193,0],[60.512792,14.235134,193.2,0],[60.512781,14.235183,193.8,0],[60.512776,14.235264,195,0],[60.51275,14.235351,195.8,0],[60.512713,14.235456,196,0],[60.512672,14.235552,196,0],[60.512629,14.235639,196.8,0],[60.512589,14.23577,197.4,0],[60.512544,14.235902,197.6,0],[60.512484,14.235996,197.6,0],[60.51243,14.236082,197.8,0],[60.512382,14.236185,198,0],[60.512332,14.236315,198,0],[60.512285,14.236467,197.2,0],[60.512248,14.236601,195.8,0],[60.512212,14.236701,194.6,0],[60.51221,14.236822,193.8,0],[60.512225,14.236931,193.6,0],[60.51221,14.23702,193.4,0],[60.512173,14.237106,193.2,0],[60.512132,14.237194,192.6,0],[60.512089,14.237281,191.8,0],[60.512057,14.237383,191.8,0],[60.512023,14.237498,192.4,0],[60.511995,14.23762,193.6,0],[60.511968,14.237732,194.8,0],[60.511931,14.237812,195.6,0],[60.511898,14.237908,196,0],[60.511853,14.23801,195.6,0],[60.511809,14.238097,195,0],[60.511771,14.238189,194.6,0],[60.511737,14.238286,194.4,0],[60.511691,14.238367,194.8,0],[60.511627,14.238435,195,0],[60.511563,14.238522,194.8,0],[60.511504,14.238626,194.4,0],[60.511452,14.238709,193.8,0],[60.511408,14.2388,193.4,0],[60.511388,14.238911,193.4,0],[60.511356,14.238985,194,0],[60.511309,14.239049,194.6,0],[60.511243,14.239135,195.2,0],[60.511171,14.23922,195,0],[60.511103,14.239308,194.2,0],[60.511045,14.239406,193.4,0],[60.510993,14.239474,192.6,0],[60.510933,14.239543,191.6,0],[60.510883,14.239669,190.8,0],[60.510826,14.239763,190.4,0],[60.510785,14.239869,190.6,0],[60.510748,14.239949,191.2,0],[60.51072,14.240022,192.4,0],[60.510689,14.240062,193.8,0],[60.510667,14.24012,194.8,0],[60.510647,14.240191,195.8,0],[60.51062,14.24025,197.2,0],[60.510571,14.240266,198.2,0],[60.510515,14.240255,198.6,0],[60.510478,14.240186,198.2,0],[60.510456,14.240109,197.8,0],[60.510455,14.24003,197.4,0],[60.510456,14.239956,197.6,0],[60.510456,14.239885,198.2,0],[60.510459,14.239794,199.6,0],[60.510452,14.239687,201.6,0],[60.510433,14.239565,203.8,0],[60.510409,14.239449,205.8,0],[60.510397,14.239343,207.4,0],[60.510393,14.239251,208.2,0],[60.510373,14.23915,208,0],[60.510368,14.239065,207.4,0],[60.510369,14.239002,206.8,0],[60.510325,14.238941,206.2,0],[60.510301,14.238848,205.8,0],[60.510291,14.238726,205.4,0],[60.510288,14.23861,205,0],[60.510284,14.238495,204.4,0],[60.510272,14.238355,204.2,0],[60.510247,14.238222,204.6,0],[60.51023,14.238087,204.8,0],[60.510218,14.237964,204.6,0],[60.510198,14.23786,204,0],[60.510176,14.237768,203,0],[60.510156,14.237676,201.8,0],[60.510145,14.237574,200.8,0],[60.510139,14.237475,199.8,0],[60.510108,14.237387,198.6,0],[60.510071,14.237296,197.6,0],[60.510033,14.237218,196.4,0],[60.509995,14.237143,195.2,0],[60.509977,14.237053,194,0],[60.509956,14.236938,192.8,0],[60.509937,14.236822,192.2,0],[60.509923,14.236696,192,0],[60.509906,14.236586,192.2,0],[60.509875,14.236485,192.2,0],[60.509849,14.236389,192.2,0],[60.509817,14.2363,192.4,0],[60.509791,14.23621,193,0],[60.509775,14.236117,193.8,0],[60.509765,14.236028,194.8,0],[60.509758,14.235937,195.6,0],[60.509727,14.23584,196.2,0],[60.509686,14.23574,196.4,0],[60.509663,14.235629,196.8,0],[60.509626,14.235524,197.2,0],[60.50959,14.235414,198.2,0],[60.509551,14.235316,199,0],[60.509512,14.235223,199.4,0],[60.509481,14.235151,199.6,0],[60.509461,14.235101,199.6,0],[60.509434,14.235034,200.2,0],[60.509369,14.23496,201.2,0],[60.509304,14.234861,202.4,0],[60.509232,14.234765,203,0],[60.509156,14.234669,203.4,0],[60.509087,14.234577,204.2,0],[60.509037,14.234477,205.4,0],[60.509001,14.23439,206.8,0],[60.508974,14.234315,208.6,0],[60.508951,14.23423,210.2,0],[60.508916,14.234143,211.4,0],[60.50888,14.23404,212.4,0],[60.508845,14.23394,213,0],[60.508796,14.233859,213.4,0],[60.508735,14.233804,214,0],[60.508668,14.233777,214,0],[60.508608,14.233738,213.2,0],[60.508566,14.233679,212.2,0],[60.508546,14.233616,211.6,0],[60.50852,14.233551,211.6,0],[60.5085,14.233476,212,0],[60.508468,14.23343,212.6,0],[60.508425,14.233396,212.8,0],[60.508374,14.233373,213,0],[60.508333,14.233351,213.4,0],[60.508296,14.233312,214.4,0],[60.508264,14.233271,215.4,0],[60.508222,14.233221,216,0],[60.508166,14.233181,216.4,0],[60.508114,14.233118,217.2,0],[60.508059,14.233051,217.8,0],[60.508005,14.232971,217.6,0],[60.507957,14.232884,216.8,0],[60.507918,14.232791,215.8,0],[60.507875,14.232711,215.2,0],[60.507837,14.232628,214.8,0],[60.507799,14.23256,214.8,0],[60.507754,14.232509,214.6,0],[60.507721,14.232414,214.2,0],[60.507696,14.232299,213.8,0],[60.507674,14.232193,213.4,0],[60.507642,14.2321,213.2,0],[60.507597,14.232029,213.2,0],[60.507548,14.231965,213.4,0],[60.507493,14.231908,213.2,0],[60.507436,14.231864,213.2,0],[60.507391,14.23182,213.4,0],[60.507331,14.231795,213.4,0],[60.507263,14.231762,213.2,0],[60.507186,14.231729,212,0],[60.507162,14.231647,210.6,0],[60.507112,14.231566,209,0],[60.507051,14.231484,207.8,0],[60.50698,14.231411,207,0],[60.506928,14.231335,206.6,0],[60.506874,14.231254,206.4,0],[60.506809,14.231184,206.4,0],[60.506747,14.231127,206.4,0],[60.50669,14.231068,206.6,0],[60.506648,14.231031,206.4,0],[60.506612,14.230996,206.2,0],[60.506579,14.230962,206,0],[60.506542,14.230936,206,0],[60.506502,14.230889,205.8,0],[60.506453,14.230842,205.6,0],[60.5064,14.23079,205.4,0],[60.506345,14.230726,206,0],[60.506284,14.230684,206.6,0],[60.506236,14.230635,206.8,0],[60.506185,14.230591,206.6,0],[60.506132,14.230565,206.8,0],[60.506075,14.230559,207.6,0],[60.506021,14.230523,208.4,0],[60.50597,14.230473,208.8,0],[60.505916,14.23042,208.8,0],[60.505862,14.23037,209.2,0],[60.505814,14.230299,210.2,0],[60.505754,14.230232,211.6,0],[60.505687,14.230179,212.8,0],[60.505619,14.230116,213.4,0],[60.505545,14.230094,213.6,0],[60.5055,14.230064,213.6,0]]},{"name":"Cato (adjusted)","color":"#ff7722","pts":[[60.521406,14.217262,265.7,0],[60.521491,14.217322,241.8,0],[60.521583,14.217406,236.7,0],[60.521673,14.217515,239.1,0],[60.521754,14.217643,239,0],[60.521822,14.217781,239,0],[60.521875,14.217923,239,0],[60.52192,14.218057,239,0],[60.521958,14.218183,239,0],[60.521991,14.218311,239,0],[60.522018,14.218442,239,0],[60.522038,14.218579,239,0],[60.522049,14.218721,239,0],[60.522054,14.218868,239,0],[60.522053,14.219013,239,0],[60.522049,14.219156,239,0],[60.522042,14.219293,239,0],[60.522033,14.219423,239,0],[60.522021,14.219549,239,0],[60.52201,14.219673,239,0],[60.522005,14.219733,239,0],[60.521991,14.219878,239,0],[60.521973,14.22002,239,0],[60.521951,14.220155,239,0],[60.521925,14.220285,239,0],[60.521896,14.220409,239,0],[60.521864,14.22052,239,0],[60.521828,14.220619,239,0],[60.52179,14.220696,239,0],[60.521751,14.22077,239,0],[60.52171,14.220844,239,0],[60.521666,14.22092,239,0],[60.521619,14.220997,238.9,0],[60.521571,14.221077,238.7,0],[60.521521,14.221157,238.4,0],[60.521469,14.221234,238.2,0],[60.521416,14.221313,238.2,0],[60.521365,14.221394,238.2,0],[60.521314,14.221474,238.2,0],[60.521264,14.221551,238.2,0],[60.521211,14.221625,238.1,0],[60.521157,14.221693,238.1,0],[60.521102,14.221753,238,0],[60.521043,14.221804,238,0],[60.520981,14.221846,238,0],[60.520917,14.221881,238,0],[60.520851,14.221911,238,0],[60.520785,14.221939,238,0],[60.520717,14.221966,238,0],[60.52065,14.221998,238,0],[60.520584,14.222034,238,0],[60.520521,14.22207,238,0],[60.52046,14.222108,238,0],[60.520403,14.222146,238,0],[60.520349,14.222183,238,0],[60.520297,14.22222,238,0],[60.52025,14.222269,238,0],[60.520206,14.222326,238,0],[60.520163,14.222378,238,0],[60.520124,14.222499,238,0],[60.520079,14.222574,238,0],[60.520037,14.222649,238,0],[60.519993,14.222723,238,0],[60.519946,14.222779,238,0],[60.519896,14.222813,238,0],[60.519846,14.222847,238,0],[60.519795,14.222887,238,0],[60.519739,14.222934,238,0],[60.51968,14.222986,238,0],[60.51962,14.223039,238,0],[60.519557,14.22309,238,0],[60.51949,14.223139,238,0],[60.519421,14.223184,238,0],[60.519353,14.223225,238,0],[60.519287,14.223263,238,0],[60.519221,14.223298,238,0],[60.519158,14.223333,238,0],[60.519098,14.22337,238,0],[60.519042,14.223408,238,0],[60.518987,14.22345,238,0],[60.518933,14.223496,238,0],[60.518879,14.223544,238,0],[60.518824,14.223593,238,0],[60.51877,14.223641,238,0],[60.518717,14.22369,238,0],[60.518664,14.223739,238,0],[60.518613,14.223789,238,0],[60.518563,14.223839,238,0],[60.518515,14.22389,238,0],[60.518466,14.223943,238,0],[60.518416,14.223998,238,0],[60.518364,14.224056,238,0],[60.518312,14.224118,238,0],[60.51826,14.22418,238,0],[60.518208,14.224242,238,0],[60.518157,14.224306,238,0],[60.518108,14.224373,238,0],[60.51806,14.224445,273.8,0],[60.518013,14.224524,273.4,0],[60.517965,14.224607,238,0],[60.517914,14.224696,238,0],[60.517863,14.224787,238,0],[60.517811,14.224881,238,0],[60.517758,14.224971,238,0],[60.517706,14.225053,237.9,0],[60.517655,14.225127,237.8,0],[60.517605,14.225193,237.6,0],[60.517556,14.225255,237.4,0],[60.517505,14.225317,237.2,0],[60.517452,14.225393,237.1,0],[60.517401,14.225487,237,0],[60.517355,14.225585,237,0],[60.517311,14.225683,237,0],[60.51727,14.225782,237,0],[60.517232,14.225876,237,0],[60.517196,14.22596,237.1,0],[60.517162,14.226017,237.1,0],[60.517125,14.226054,237.1,0],[60.517082,14.226087,237.1,0],[60.517036,14.226119,237,0],[60.516986,14.226156,237,0],[60.516931,14.226201,237,0],[60.516876,14.226255,237,0],[60.516821,14.226317,237,0],[60.516767,14.226387,237,0],[60.516715,14.226459,237,0],[60.516664,14.226537,237,0],[60.516614,14.226624,237,0],[60.516566,14.226722,237,0],[60.51652,14.226821,237,0],[60.516475,14.226914,237,0],[60.516431,14.227002,237,0],[60.516388,14.227085,237,0],[60.516346,14.227157,237,0],[60.516308,14.22721,237,0],[60.516271,14.227246,237,0],[60.516233,14.227279,237,0],[60.516194,14.227318,237,0],[60.516151,14.227363,237,0],[60.516105,14.227417,237,0],[60.516054,14.227483,237,0],[60.515998,14.227562,237,0],[60.515936,14.227653,237,0],[60.515869,14.227753,237,0],[60.515801,14.227858,237,0],[60.515731,14.227967,237,0],[60.515664,14.228076,237,0],[60.515599,14.228182,237,0],[60.515541,14.228283,237,0],[60.51549,14.228376,237,0],[60.515448,14.228463,237,0],[60.515414,14.228548,237,0],[60.515389,14.228628,237,0],[60.515367,14.228705,237,0],[60.515346,14.228781,237,0],[60.515325,14.228859,237,0],[60.515302,14.228943,237,0],[60.515275,14.229032,237,0],[60.515241,14.229127,237,0],[60.515201,14.229232,237,0],[60.515157,14.229342,237,0],[60.515111,14.229453,237,0],[60.515065,14.229564,237,0],[60.515018,14.229669,237,0],[60.514971,14.229767,237,0],[60.514925,14.229856,237,0],[60.514882,14.229934,237,0],[60.514843,14.230003,237.1,0],[60.514805,14.230068,237,0],[60.514768,14.230129,237,0],[60.514733,14.23019,237,0],[60.514701,14.230254,237,0],[60.514668,14.230323,237,0],[60.514634,14.230401,237,0],[60.514597,14.230492,237,0],[60.514559,14.230594,237,0],[60.514517,14.230707,237,0],[60.514472,14.230835,237,0],[60.514425,14.23098,237,0],[60.514378,14.231134,237,0],[60.514332,14.231291,237,0],[60.514294,14.231424,237.1,0],[60.514294,14.231424,237.1,0],[60.514257,14.231574,237.1,0],[60.514217,14.231744,237,0],[60.514183,14.231902,237,0],[60.514154,14.232041,237,0],[60.514129,14.232164,237.1,0],[60.514108,14.232281,237.2,0],[60.51409,14.232389,237.3,0],[60.514076,14.232469,237.3,0],[60.514063,14.232562,237.3,0],[60.514049,14.232664,237.4,0],[60.51403,14.232777,237.7,0],[60.514008,14.232892,237.9,0],[60.513983,14.233007,238.2,0],[60.513954,14.233121,238.2,0],[60.513919,14.233231,237.9,0],[60.513879,14.233332,237.7,0],[60.513837,14.233426,237.5,0],[60.513795,14.233521,237.3,0],[60.513754,14.233619,237.2,0],[60.513713,14.233722,237.1,0],[60.513674,14.233833,237,0],[60.513638,14.233951,237,0],[60.513605,14.234069,237.1,0],[60.513573,14.234188,237.2,0],[60.513544,14.234305,237.3,0],[60.513515,14.234414,237.3,0],[60.513487,14.234522,237.3,0],[60.51346,14.23463,237.1,0],[60.513433,14.234736,237.1,0],[60.513402,14.234836,237.1,0],[60.513369,14.234929,237,0],[60.513334,14.235016,237,0],[60.513296,14.235096,237,0],[60.513256,14.235166,237,0],[60.513214,14.235225,237.1,0],[60.513172,14.235279,237.1,0],[60.513132,14.235332,237.1,0],[60.513091,14.235389,237.1,0],[60.51305,14.235451,237.1,0],[60.513012,14.23552,237.1,0],[60.512974,14.235593,237,0],[60.512937,14.235674,237,0],[60.512901,14.235765,237,0],[60.512865,14.235864,237,0],[60.51283,14.235971,237.1,0],[60.512796,14.236085,237.1,0],[60.512761,14.236203,237.1,0],[60.512727,14.236327,237.1,0],[60.512692,14.236451,237,0],[60.512657,14.236573,237,0],[60.512621,14.236689,237,0],[60.512586,14.236798,237,0],[60.512553,14.236903,237.1,0],[60.512522,14.237005,237.1,0],[60.512492,14.237103,237.2,0],[60.512463,14.237199,237.2,0],[60.512435,14.237293,237.2,0],[60.512405,14.237387,237.1,0],[60.512374,14.23748,237.1,0],[60.512342,14.237572,237,0],[60.512306,14.23766,237,0],[60.512269,14.237748,237.1,0],[60.512231,14.237836,237.1,0],[60.512194,14.237923,237.1,0],[60.512156,14.238009,237.1,0],[60.512118,14.238097,237,0],[60.512079,14.238188,274.9,0],[60.512039,14.238285,274.9,0],[60.511997,14.238387,275.1,0],[60.511955,14.238492,237,0],[60.511911,14.2386,237,0],[60.511867,14.23871,237,0],[60.511824,14.238816,237,0],[60.511783,14.238916,237,0],[60.511743,14.239007,237,0],[60.511703,14.239094,237.1,0],[60.511663,14.239174,237.1,0],[60.511623,14.239249,237.1,0],[60.511582,14.239317,237.1,0],[60.51154,14.239384,237.1,0],[60.511496,14.239451,237.1,0],[60.51145,14.239519,237.1,0],[60.511405,14.239588,237.1,0],[60.511359,14.239658,237.2,0],[60.511313,14.239731,237.2,0],[60.511265,14.239809,237.3,0],[60.511216,14.239886,237.3,0],[60.511166,14.239963,237.2,0],[60.511115,14.240043,237.1,0],[60.511062,14.240125,237.1,0],[60.51101,14.240207,237.1,0],[60.510956,14.240288,237,0],[60.510901,14.240367,237.1,0],[60.510847,14.240447,237,0],[60.510792,14.240521,237,0],[60.510738,14.240582,237,0],[60.510684,14.240624,237,0],[60.51063,14.240643,237,0],[60.51058,14.240632,237,0],[60.510534,14.240589,237,0],[60.510494,14.240517,237.2,0],[60.510461,14.240423,237.4,0],[60.510434,14.240316,237.8,0],[60.510414,14.240201,238,0],[60.510399,14.240083,238.2,0],[60.510386,14.239972,238.2,0],[60.510376,14.239871,238.1,0],[60.510366,14.239774,238.1,0],[60.510356,14.239679,238,0],[60.510343,14.239587,238,0],[60.510326,14.239497,237.9,0],[60.510306,14.239406,237.8,0],[60.510287,14.239312,237.7,0],[60.510268,14.239215,237.6,0],[60.51025,14.239114,237.5,0],[60.510233,14.239011,275.2,0],[60.510218,14.238905,274.8,0],[60.510205,14.238798,237.3,0],[60.510192,14.238695,237.3,0],[60.510177,14.238594,237.4,0],[60.51016,14.238498,237.5,0],[60.510142,14.238407,237.7,0],[60.510122,14.238318,238,0],[60.510098,14.23823,238,0],[60.510075,14.23814,238,0],[60.510053,14.238047,237.9,0],[60.510032,14.237952,237.8,0],[60.51001,14.237853,237.7,0],[60.509987,14.237748,237.6,0],[60.509965,14.237639,237.5,0],[60.509943,14.237527,237.4,0],[60.509921,14.237412,237.3,0],[60.509901,14.237297,237.3,0],[60.509877,14.237205,237.3,0],[60.509847,14.237099,237.5,0],[60.509818,14.236988,237.7,0],[60.509779,14.23691,237.7,0],[60.509744,14.236848,237.6,0],[60.509713,14.23678,237.6,0],[60.509678,14.236721,237.4,0],[60.509651,14.236663,237.3,0],[60.509627,14.236603,237.3,0],[60.509603,14.236535,237.2,0],[60.50958,14.236462,237.2,0],[60.509556,14.236381,237.2,0],[60.509531,14.236294,237.4,0],[60.509507,14.236203,237.5,0],[60.509483,14.236108,237.6,0],[60.509459,14.236012,237.7,0],[60.509435,14.235919,237.6,0],[60.50941,14.235829,237.6,0],[60.509385,14.235744,237.6,0],[60.509359,14.23566,237.8,0],[60.509333,14.235578,238.1,0],[60.509305,14.235496,238.2,0],[60.509273,14.235419,238.2,0],[60.509236,14.235339,238,0],[60.509194,14.235256,238,0],[60.509146,14.235175,238,0],[60.509096,14.235093,238,0],[60.509044,14.235014,238.2,0],[60.508992,14.234936,238.2,0],[60.508943,14.234859,238,0],[60.508897,14.234788,237.9,0],[60.508855,14.234721,237.7,0],[60.508817,14.234654,237.9,0],[60.50878,14.23459,237.9,0],[60.50874,14.234523,238.2,0],[60.5087,14.234452,238.2,0],[60.508659,14.234378,238.5,0],[60.508617,14.234299,238.8,0],[60.508576,14.234214,239.1,0],[60.508534,14.234124,239.5,0],[60.508493,14.234033,239.7,0],[60.508454,14.233947,240,0],[60.508417,14.233863,240.3,0],[60.508379,14.233787,240.5,0],[60.508341,14.233724,240.5,0],[60.508303,14.233676,240.5,0],[60.508266,14.233634,240.3,0],[60.50823,14.23359,240.3,0],[60.508192,14.23355,239.9,0],[60.508154,14.233513,239.7,0],[60.508118,14.233466,239.6,0],[60.508085,14.233411,240,0],[60.50805,14.233349,240,0],[60.508013,14.233287,240.3,0],[60.507973,14.233228,240.4,0],[60.507935,14.233164,240.3,0],[60.507895,14.233099,240.2,0],[60.507853,14.233037,239.9,0],[60.507808,14.232977,239.9,0],[60.507763,14.232914,239.8,0],[60.50772,14.232849,240.1,0],[60.507677,14.232784,240.1,0],[60.507631,14.232719,240.3,0],[60.507585,14.232655,240.3,0],[60.507536,14.232591,240.6,0],[60.507488,14.232525,240.6,0],[60.50744,14.232462,240.9,0],[60.507391,14.232401,240.9,0],[60.507344,14.232341,241.2,0],[60.507298,14.232282,241.2,0],[60.507253,14.232224,241.1,0],[60.50721,14.232166,241.5,0],[60.507168,14.232107,241.5,0],[60.507127,14.232046,241.6,0],[60.507086,14.231984,241.8,0],[60.507046,14.231921,241.8,0],[60.507005,14.231859,242,0],[60.506964,14.231799,242,0],[60.506922,14.23174,242,0],[60.50688,14.231683,241.9,0],[60.506836,14.231627,241.6,0],[60.50679,14.231571,241.6,0],[60.506741,14.231515,241.3,0],[60.506689,14.231463,241.3,0],[60.506637,14.231414,241.2,0],[60.506584,14.231365,241.3,0],[60.50653,14.23132,241.2,0],[60.506474,14.231276,241.3,0],[60.50642,14.231232,241.2,0],[60.506369,14.231187,242,0],[60.50632,14.231138,242.4,0],[60.506273,14.231086,242.9,0],[60.506227,14.231032,243.4,0],[60.506182,14.230977,243.8,0],[60.506138,14.230923,244.5,0],[60.506094,14.230872,280.5,0],[60.506049,14.23082,244.8,0],[60.506005,14.230769,245,0],[60.505959,14.23072,245.1,0],[60.505911,14.230674,245.3,0],[60.505863,14.230628,245.7,0],[60.505815,14.230581,245.7,0],[60.505766,14.230534,245.8,0],[60.505714,14.23049,269.5,0],[60.50566,14.23045,245.8,0],[60.505606,14.230414,245.9,0],[60.505554,14.230382,245.5,0],[60.505506,14.230354,245.5,0],[60.505465,14.230329,245.4,0],[60.505434,14.230301,245.1,0],[60.505404,14.230277,245.2,0],[60.50539,14.230249,245.1,0],[60.505392,14.230239,245.4,0]]},{"name":"Håkon adjusted","color":"#ffbb33","pts":[[60.5217,14.217625,227.6,0],[60.521792,14.217899,233.8,0],[60.521796,14.21796,232.2,0],[60.521796,14.218049,231.2,0],[60.5218,14.218158,230.4,0],[60.521811,14.21829,230,0],[60.521823,14.218426,229.8,0],[60.521845,14.218557,230,0],[60.52187,14.218693,230.4,0],[60.521886,14.218835,230.4,0],[60.521915,14.21897,230.2,0],[60.521928,14.219111,230.2,0],[60.521933,14.219251,230,0],[60.521933,14.21939,230,0],[60.521931,14.219529,229.8,0],[60.521948,14.21968,229.6,0],[60.521958,14.219825,229.2,0],[60.521958,14.219955,229,0],[60.521966,14.220078,228.8,0],[60.521964,14.220199,228.6,0],[60.521936,14.220305,228.4,0],[60.521906,14.220425,228.6,0],[60.521877,14.22056,229,0],[60.521838,14.220688,229.2,0],[60.52179,14.220789,229.6,0],[60.521751,14.22091,230,0],[60.52171,14.221015,230.6,0],[60.521673,14.221109,231.2,0],[60.521638,14.2212,231.6,0],[60.521597,14.221283,231.8,0],[60.521545,14.221347,232,0],[60.521495,14.221424,232.2,0],[60.521446,14.221508,232.4,0],[60.5214,14.221605,232.4,0],[60.521344,14.221683,232.2,0],[60.521287,14.221754,232,0],[60.521233,14.221808,232,0],[60.521174,14.221854,232.2,0],[60.521117,14.22191,232.2,0],[60.521061,14.221966,232,0],[60.521017,14.222048,231.6,0],[60.520969,14.222117,231.4,0],[60.520911,14.222153,231.2,0],[60.520847,14.222194,231,0],[60.520779,14.222251,230.8,0],[60.52071,14.222304,230.8,0],[60.520643,14.222341,231,0],[60.520574,14.222378,231,0],[60.520503,14.222424,230.6,0],[60.520439,14.222444,230.2,0],[60.520381,14.222491,230.2,0],[60.520325,14.222537,230.8,0],[60.520272,14.22261,231.6,0],[60.520215,14.222666,231.8,0],[60.520153,14.222712,232,0],[60.520086,14.222766,232,0],[60.520025,14.222821,232.4,0],[60.519962,14.222867,232.4,0],[60.519897,14.22289,231.4,0],[60.519818,14.22289,229.4,0],[60.519744,14.22288,227.6,0],[60.519671,14.222863,225.8,0],[60.519593,14.222873,223.8,0],[60.519504,14.22291,221.6,0],[60.519417,14.222943,219.4,0],[60.519343,14.222962,218,0],[60.519288,14.222974,217.4,0],[60.519235,14.222993,217.2,0],[60.519181,14.223033,216.4,0],[60.519125,14.223123,215,0],[60.519065,14.223184,213.4,0],[60.519005,14.223232,212,0],[60.518939,14.223266,210.6,0],[60.518864,14.223313,209,0],[60.518785,14.223372,207.8,0],[60.518713,14.223441,206.8,0],[60.518645,14.223488,205.8,0],[60.518584,14.223537,204.8,0],[60.518528,14.223587,203.4,0],[60.518475,14.223616,202.6,0],[60.518432,14.223685,202.6,0],[60.518389,14.223789,202.6,0],[60.518333,14.223854,202.4,0],[60.518273,14.22388,201.6,0],[60.518216,14.223894,200.4,0],[60.518156,14.223908,199,0],[60.518093,14.223969,197.6,0],[60.518023,14.22404,196.4,0],[60.517977,14.224091,196.6,0],[60.517952,14.224172,197.8,0],[60.517928,14.224274,199,0],[60.517889,14.224398,199.2,0],[60.517837,14.224531,198,0],[60.51779,14.224642,196.4,0],[60.517732,14.224713,195.2,0],[60.517678,14.224798,194.6,0],[60.517607,14.22487,193.8,0],[60.51754,14.224955,193.2,0],[60.51749,14.225039,192.6,0],[60.517446,14.225073,192.2,0],[60.517412,14.225104,192.2,0],[60.517376,14.225161,192.4,0],[60.517335,14.225247,192.4,0],[60.517285,14.225353,192.4,0],[60.517217,14.225441,192.6,0],[60.517163,14.225535,192.8,0],[60.517116,14.225632,192.8,0],[60.517076,14.225727,193,0],[60.517034,14.225812,193,0],[60.51699,14.225898,193,0],[60.516948,14.225983,193,0],[60.516917,14.226059,192.8,0],[60.516877,14.226116,193.2,0],[60.516831,14.226168,193.6,0],[60.516783,14.226253,193.8,0],[60.516735,14.226346,193.6,0],[60.516695,14.226436,193.4,0],[60.516658,14.226487,193.4,0],[60.516619,14.226544,193.4,0],[60.516562,14.226596,193,0],[60.516503,14.226675,192.2,0],[60.516438,14.226759,191.2,0],[60.516375,14.226864,190.2,0],[60.516318,14.226987,189.4,0],[60.516252,14.227089,188.4,0],[60.516196,14.227198,187.8,0],[60.516134,14.227265,187.6,0],[60.516083,14.227366,187.6,0],[60.516025,14.227451,187.8,0],[60.51597,14.227534,187.8,0],[60.515912,14.227604,187.6,0],[60.515854,14.227659,187.4,0],[60.515797,14.227729,187.2,0],[60.51574,14.22781,186.8,0],[60.515685,14.227895,186.4,0],[60.515638,14.22799,186,0],[60.515592,14.22808,186.4,0],[60.51554,14.22813,187.4,0],[60.515485,14.228159,188.4,0],[60.515438,14.228181,189.2,0],[60.515389,14.228206,190.2,0],[60.515346,14.228235,191.8,0],[60.51531,14.228281,193.6,0],[60.515283,14.228353,195.4,0],[60.515248,14.228463,196.4,0],[60.515209,14.228576,196.8,0],[60.515151,14.228643,197,0],[60.515094,14.228753,196.8,0],[60.515037,14.228848,196.8,0],[60.514976,14.228926,196.8,0],[60.514925,14.229021,197,0],[60.514876,14.229113,197.2,0],[60.514828,14.229195,197.4,0],[60.514801,14.229288,198.2,0],[60.514785,14.229399,199.2,0],[60.514764,14.229517,199.4,0],[60.514724,14.229608,199.2,0],[60.514675,14.229672,199,0],[60.514633,14.229766,199,0],[60.514608,14.229878,199.4,0],[60.514589,14.229996,199.8,0],[60.514553,14.230101,200.2,0],[60.514506,14.230221,200.4,0],[60.514458,14.230323,200.4,0],[60.514407,14.230423,199.8,0],[60.514361,14.23053,199.6,0],[60.514318,14.230632,199.4,0],[60.514286,14.23076,199.2,0],[60.514238,14.23087,198.4,0],[60.514178,14.230985,197.4,0],[60.514128,14.231094,196.4,0],[60.51409,14.231199,196.2,0],[60.514063,14.231309,196.2,0],[60.514037,14.231419,196.2,0],[60.514009,14.231537,196,0],[60.513976,14.231656,195.4,0],[60.513929,14.231761,194.2,0],[60.513888,14.231877,193,0],[60.513852,14.231982,192.2,0],[60.513829,14.232084,192.4,0],[60.513811,14.232199,192.8,0],[60.513788,14.232326,193.2,0],[60.51376,14.232442,193.4,0],[60.513738,14.232569,193.6,0],[60.513714,14.2327,193.6,0],[60.513672,14.232797,193.4,0],[60.513631,14.232916,192.8,0],[60.513613,14.23304,192.6,0],[60.513594,14.233142,192.6,0],[60.513578,14.23324,192.8,0],[60.513572,14.233355,193.2,0],[60.513545,14.233469,193.8,0],[60.513518,14.233593,194.4,0],[60.513481,14.233705,194.6,0],[60.513437,14.233815,194.4,0],[60.513397,14.23393,194,0],[60.513362,14.23403,194,0],[60.513333,14.234123,194,0],[60.513304,14.234229,194.2,0],[60.513271,14.234325,194.2,0],[60.513239,14.234436,194,0],[60.513214,14.234573,193.2,0],[60.513179,14.234694,192.6,0],[60.513138,14.234796,192.6,0],[60.513095,14.234908,193.2,0],[60.51306,14.235045,194,0],[60.513019,14.23518,194,0],[60.512998,14.235306,193.8,0],[60.512971,14.235421,193.6,0],[60.512942,14.235507,193.4,0],[60.512901,14.235537,193,0],[60.512869,14.23557,193.2,0],[60.512858,14.235619,193.8,0],[60.512853,14.2357,195,0],[60.512827,14.235787,195.8,0],[60.51279,14.235892,196,0],[60.512749,14.235988,196,0],[60.512706,14.236075,196.8,0],[60.512666,14.236206,197.4,0],[60.512621,14.236338,197.6,0],[60.512561,14.236432,197.6,0],[60.512507,14.236518,197.8,0],[60.512459,14.236621,198,0],[60.512409,14.236751,198,0],[60.512362,14.236903,197.2,0],[60.512325,14.237037,195.8,0],[60.512289,14.237137,194.6,0],[60.512287,14.237258,193.8,0],[60.512302,14.237367,193.6,0],[60.512287,14.237456,193.4,0],[60.51225,14.237542,193.2,0],[60.512209,14.23763,192.6,0],[60.512166,14.237717,191.8,0],[60.512134,14.237819,191.8,0],[60.5121,14.237934,192.4,0],[60.512072,14.238056,193.6,0],[60.512045,14.238168,194.8,0],[60.512008,14.238248,195.6,0],[60.511975,14.238344,196,0],[60.51193,14.238446,195.6,0],[60.511886,14.238533,195,0],[60.511848,14.238625,194.6,0],[60.511814,14.238722,194.4,0],[60.511768,14.238803,194.8,0],[60.511704,14.238871,195,0],[60.51164,14.238958,194.8,0],[60.511581,14.239062,194.4,0],[60.511529,14.239145,193.8,0],[60.511485,14.239236,193.4,0],[60.511465,14.239347,193.4,0],[60.511433,14.239421,194,0],[60.511386,14.239485,194.6,0],[60.51132,14.239571,195.2,0],[60.511248,14.239656,195,0],[60.51118,14.239744,194.2,0],[60.511122,14.239842,193.4,0],[60.51107,14.23991,192.6,0],[60.51101,14.239979,191.6,0],[60.51096,14.240105,190.8,0],[60.510903,14.240199,190.4,0],[60.510862,14.240305,190.6,0],[60.510825,14.240385,191.2,0],[60.510797,14.240458,192.4,0],[60.510766,14.240498,193.8,0],[60.510744,14.240556,194.8,0],[60.510724,14.240627,195.8,0],[60.510697,14.240686,197.2,0],[60.510648,14.240702,198.2,0],[60.510592,14.240691,198.6,0],[60.510555,14.240622,198.2,0],[60.510533,14.240545,197.8,0],[60.510532,14.240466,197.4,0],[60.510533,14.240392,197.6,0],[60.510533,14.240321,198.2,0],[60.510536,14.24023,199.6,0],[60.510529,14.240123,201.6,0],[60.51051,14.240001,203.8,0],[60.510486,14.239885,205.8,0],[60.510474,14.239779,207.4,0],[60.51047,14.239687,208.2,0],[60.51045,14.239586,208,0],[60.510445,14.239501,207.4,0],[60.510446,14.239438,206.8,0],[60.510402,14.239377,206.2,0],[60.510378,14.239284,205.8,0],[60.510368,14.239162,205.4,0],[60.510365,14.239046,205,0],[60.510361,14.238931,204.4,0],[60.510349,14.238791,204.2,0],[60.510324,14.238658,204.6,0],[60.510307,14.238523,204.8,0],[60.510295,14.2384,204.6,0],[60.510275,14.238296,204,0],[60.510253,14.238204,203,0],[60.510233,14.238112,201.8,0],[60.510222,14.23801,200.8,0],[60.510216,14.237911,199.8,0],[60.510185,14.237823,198.6,0],[60.510148,14.237732,197.6,0],[60.51011,14.237654,196.4,0],[60.510072,14.237579,195.2,0],[60.510054,14.237489,194,0],[60.510033,14.237374,192.8,0],[60.510014,14.237258,192.2,0],[60.51,14.237132,192,0],[60.509983,14.237022,192.2,0],[60.509952,14.236921,192.2,0],[60.509926,14.236825,192.2,0],[60.509894,14.236736,192.4,0],[60.509868,14.236646,193,0],[60.509852,14.236553,193.8,0],[60.509842,14.236464,194.8,0],[60.509835,14.236373,195.6,0],[60.509804,14.236276,196.2,0],[60.509763,14.236176,196.4,0],[60.50974,14.236065,196.8,0],[60.509703,14.23596,197.2,0],[60.509667,14.23585,198.2,0],[60.509628,14.235752,199,0],[60.509589,14.235659,199.4,0],[60.509558,14.235587,199.6,0],[60.509538,14.235537,199.6,0],[60.509511,14.23547,200.2,0],[60.509446,14.235396,201.2,0],[60.509381,14.235297,202.4,0],[60.509309,14.235201,203,0],[60.509233,14.235105,203.4,0],[60.509164,14.235013,204.2,0],[60.509114,14.234913,205.4,0],[60.509078,14.234826,206.8,0],[60.509051,14.234751,208.6,0],[60.509028,14.234666,210.2,0],[60.508993,14.234579,211.4,0],[60.508957,14.234476,212.4,0],[60.508922,14.234376,213,0],[60.508873,14.234295,213.4,0],[60.508812,14.23424,214,0],[60.508745,14.234213,214,0],[60.508685,14.234174,213.2,0],[60.508643,14.234115,212.2,0],[60.508623,14.234052,211.6,0],[60.508597,14.233987,211.6,0],[60.508577,14.233912,212,0],[60.508545,14.233866,212.6,0],[60.508502,14.233832,212.8,0],[60.508451,14.233809,213,0],[60.50841,14.233787,213.4,0],[60.508373,14.233748,214.4,0],[60.508341,14.233707,215.4,0],[60.508299,14.233657,216,0],[60.508243,14.233617,216.4,0],[60.508191,14.233554,217.2,0],[60.508136,14.233487,217.8,0],[60.508082,14.233407,217.6,0],[60.508034,14.23332,216.8,0],[60.507995,14.233227,215.8,0],[60.507952,14.233147,215.2,0],[60.507914,14.233064,214.8,0],[60.507876,14.232996,214.8,0],[60.507831,14.232945,214.6,0],[60.507798,14.23285,214.2,0],[60.507773,14.232735,213.8,0],[60.507751,14.232629,213.4,0],[60.507719,14.232536,213.2,0],[60.507674,14.232465,213.2,0],[60.507625,14.232401,213.4,0],[60.50757,14.232344,213.2,0],[60.507513,14.2323,213.2,0],[60.507468,14.232256,213.4,0],[60.507408,14.232231,213.4,0],[60.50734,14.232198,213.2,0],[60.507263,14.232165,212,0],[60.507239,14.232083,210.6,0],[60.507189,14.232002,209,0],[60.507128,14.23192,207.8,0],[60.507057,14.231847,207,0],[60.507005,14.231771,206.6,0],[60.506951,14.23169,206.4,0],[60.506886,14.23162,206.4,0],[60.506824,14.231563,206.4,0],[60.506767,14.231504,206.6,0],[60.506725,14.231467,206.4,0],[60.506689,14.231432,206.2,0],[60.506656,14.231398,206,0],[60.506619,14.231372,206,0],[60.506579,14.231325,205.8,0],[60.50653,14.231278,205.6,0],[60.506477,14.231226,205.4,0],[60.506422,14.231162,206,0],[60.506361,14.23112,206.6,0],[60.506313,14.231071,206.8,0],[60.506262,14.231027,206.6,0],[60.506209,14.231001,206.8,0],[60.506152,14.230995,207.6,0],[60.506098,14.230959,208.4,0],[60.506047,14.230909,208.8,0],[60.505993,14.230856,208.8,0],[60.505939,14.230806,209.2,0],[60.505891,14.230735,210.2,0],[60.505831,14.230668,211.6,0],[60.505764,14.230615,212.8,0],[60.505696,14.230552,213.4,0],[60.505622,14.23053,213.6,0],[60.505577,14.2305,213.6,0]]}];
+
+var NEXT_COLORS = ['#ff8800','#ff6600','#ffaa00','#ff4400','#ffcc00','#ff7722','#ffbb33','#ee5500','#ffaa44','#ff9911','#ff5500','#ffdd00'];
+var colorIdx = TRACKS.length % NEXT_COLORS.length;
+
+// ── TILE CONFIG ───────────────────────────────────────────────────────────────
+var TILE_URLS = {
+  street:    function(x,y,z){ var s=['a','b','c','d'][(x+y)%4]; return 'https://'+s+'.basemaps.cartocdn.com/light_all/'+z+'/'+x+'/'+y+'.png'; },
+  satellite: function(x,y,z){ return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/'+z+'/'+y+'/'+x; }
+};
+var TILE_ATTRIB = {
+  street:    '&copy; <a href="https://carto.com/attributions" target="_blank">CARTO<\/a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap<\/a>',
+  satellite: '&copy; <a href="https://www.esri.com" target="_blank">Esri<\/a>, Maxar'
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+var currentLayer = 'satellite';
+var tileCache    = {};
+var visible      = TRACKS.map(function(){ return true; });
+var showMarkers = true;
+var showLabels = true;
+var showDistances = false;
+var showCities = true;
+var showAvatar = false;
+var showCoveredDist = false;
+var dirty        = false;
+var view         = { cx:0, cy:0, scale:1, zoom:13 };
+var cv, ctx, W=0, H=0, drag=null;
+
+// ── AVATAR ───────────────────────────────────────────────────────────────────
+var AVATAR_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAALtUlEQVR42u2Y2ZNc9XXHP7/f3fv2NqtmkUYLWhACCSwvWGAjwKRMbCfl5C0JqVQe9Jp/IIUenAdXOQ9OpSoUNuB4KVeFIgQHGYfCsRBgJIS2EZLQaJ0Zzd49a09P991+Jw8zowgjgVQmyUvOU1edX9376XN+Z7lfuInt379fi4jF/5KJiCUi6mY+dZPDSiklq/7du3fbx48fv+7eDWrfvn0AbO3ulgvj42psYEDePHSIQzd/v/oUvuSTnOpmcIODg93r16//DrAH8G/2RGUMoEEvP+T3CHcDOHT27Nm/ve+++2aMMTcGCPtGOIDXX389XLtu3a/mF2q7/u3fXyVJM7IsI0siJq5d4/N3beCP/+AxCPJIHBPNzlKdmOL45UFODQ+zUK+jLU0cJ+RyAZ1tLVSq0xgRMmNQWuP7Ab7voS1NsRDyl0/91T07duzY8vTTTz8JGODjgIBWSmXTc3NfsbTe9Uff/tP43KXLdmdXF67nYim4+sFZ/vC+LezIKVp7+vDzRRojowwdO8Uv//Nt3pmYpNTbTblURmcpoaMZyBI+uHiFpTglE8H3PWxLoRDyocfSwpxcGBiQ73//H7+2b9++zUqp8yKilVLmI4BvvvmmAgiCoASY2blZnc/ntee5xFHEXG0R3/O5OlHh5PkB9nZ2M3RliINvHKRamebS5DiB4/KNRx7lW489Qm9LiZFro/z68GF61m3GKhYJAo9c4FOdnqbZbOK5Np6NdLa3kRkjpVIp+N382x8rkjTNcF39xBNfMyMTU8zMzTM7O4vJhG7HpSQJqe1Sm5/nlZd+wZvH+/nrp/4cq1Tm0NET5OYWuCsMGBsa5u23fsvb7x3lUnWanV/+IhvWr6XZXKIQ5mgpl0AMUbOO5/torVWSJPKpgEopBdDd1U2h3EacZlSmpzHGsNXWbAldlOPS2tPLnz31F3xx1wPS09erbCMcff8kY5cvM3L6DNW5eSojI8xVppitVKlOTtLaVkJQlAt5Go0aShlc28LSGgU4jsOnAmZZBkAuDElFYdmGwM+BUlihT8+mHi5d+JDTp89gxQlH3jui8udLHDt/gRNXLhApQ5LEWM2YdfkSX9/5ALXDh3Eti8rMAguLi1hKSOImge8ReC7mE1qufSuHpTVKKVzHIQwDmlHM6OISh85eQOanmZyaYGpkhLGJGTY5NtpzcTyHUnsb+WKZ0XOXsJci1jg+Zc/HdQMsbVMuFEnTGMfSeJ5Hs9kkSZeDkiTJnQEmSYIRCAOf1nKRLE2RpSWCuEZltEJqWWzc1McD27fh+Q5nrg5y6doI3/npz3HjhLnpGfxM8C2bhek57tm5g472Io1mgySOsSyNbTm0t7bC7aZ41eI0RURQWoNSJGmGpSzqmaYYFCh5Hu+dOoOdC3GCgCDwsR2XcyNDnL56Bcd1CfyAjnwJ33YZP3+ByXqTB+6/l472IkFgk7c90jQhSeI7j2A+zBMnGXGaUqsv4rgeS82Ms+cGGafGIxu62dTVxckrw/z0wBtkRojTDNdxEMvGoGhEMcPJNFprLNtnanKKd4+cYsf2zfStbacQhohJ0ZZ953dQK4UxIGgK+RKj43O8994pZqvThK7Qogy7t21l/Zoujg1c5ty1EZStWEwiMmOWp6jSKBHECGnSJJ2vkMQNGhvWcuHiIHFcZ21P5ycO61sCLjVjDJraYszps5cYOH+ROGrS2tZOvpDn8PAEiws2XR7klaJgO1QaEWmaorSN5biIgIgACqUUYjIatRkOv/0b8oUSabyFjX3rUCuEjuN8eh+U5ScShkVOnRvmyNF+Rq8N43supXIbtuOBdsi1d7N15yZGT77Plr4NPPSFL3H83CXev3yZS7MzREmG5wW4joPjuAhCc6kOGCSLWZyfZnjYZ6oyx5rOztuPoDFGAVQrM/z23WNUKlNgYpIopV6zsDT4nk0Ux2zZ0Ic/U2XPg/ejFhYIM2FtRwcvnTxNki9TqVZxXY98GFKZHEUQUMtzWClDtTLF2MQEO3dsRURIkuRj2dYfi6DWAjA4NAqWS9/GzViWTXOpRqM+SzHvUyrmcS3Iu4onHv8y7a0FiaM6pZxNdzFHT0uZ9Rs38uS3vo3rB8zOTpMkTbI0AjGIGJTSJFFEZXISz3VvGcGPAa729Or0tMqFeYKwSGYMUVTHcx1yOZ+JyUnu2bqJ0NX4rmJ+YlRNjI0xV68zNDvH+aErvPvWGyzMz7B581ayNCGOGpgsRYxZDQUihuGhYTU/v4BS6vYAr+fe0ogx2K63stkuj6fh4WE62lvxfZfRiXEa9QWGBocYr0xz8uow//LOO1SX6iRxxLtv/YY4iehZuw7HtldnPUpbKGXR07uOamWaU/1nPnL/PxFw9Q66jkN1aoJrVy9h0hhLa5bqC6RpQkd7G7W5eUAxOVGlOlvn7FiV/zjzIRP1RZSlsbRmcWGGs6ePLc/dXLiyhyocx2Vt30Ys26FWqzFw4SIA7k1SfctlwfddiZsNXN/DsmzSNCVqxmitaEQJU9UKPx+6zO6uVq6NjvPqiX4q9UWUZWGyDDBorWnUZphTGUi23G60Yk1XL4uLdeZmp1FKETWj269ivVIktu1QLpd4+NFHGb56mavn+5kYHWRibJSH9hawLMWvDxzmmDRJk5hKfRGUwhiz3IqANF0eXWkcISJovXxtpiYngOVFpKE1Wlu3XySrZdLW3qbu3n439foiM9NVmo0GSZqxpruXJEk5fvQIzUaNsYV55jOD5XhkxmCMQSlwHBetFGoFVGuF6wUUWzqWsySCtiy0Vtcb9W21GWOWD2ltydXBYUbHphgbHWV8fIzuvs3c+7kHOXrkMCODF8nSCK00tuuhbfv6R2KaJis/1XLfUwoRwbIdlLIQUWQmQ4yglHW9gm9rktxQLKRxRGOxRpqk3Lv7IXr7NjDw4YdMjl5FY8hW0mY7LkpbNJfqKKWXYSwHP2eRxBFZlqGUxnEt4jhCxGCyDGPbKKVXlwW5vT5oWdcPO5bF/MwUvX3r6ezuZeBsPyNXzhE3amRZgjEGy7Ypt7YT5MLlGlUKMQYRwQ8KOI6PyQwiyz6TpViWhR+EoBSlljbxgwKASpJE3xJw7969BmBhoXkeUFvu2sBSoylZmmApuHDmFOPDF0miGiZNEJMCQpLEpFmG43iIEVb/XZom2I5DrlDG8QJASNOELEtBDGEYYrsBYbFNvvnNJw0Qj4+PT1zv4rfQSPTyJtN8QUTkxX99zTz8+J8kuZaNptSxWVo7N0q+tEa8oCSuXxDHy4vt5qXQ0i0tHX3ieHnx/IJ4fkGCsEV6N+yQvrvul9aOPgnzbVJu6ZKWth6xnIKgcmbPV7+evPzKa5mISL1R/96qTvNJIo4SEf3ss8869Xr970WkISLy3PM/kfse2JOg88ZyChIWWsXzC+J4BXG9ghRbuqSzZ7P4ubJ4flH8oCheUJI1vVula+026ejaKC2t3WLZoYBrdu76QvLc8z+SFWvUarXvrghW+lYi0k3t9Onzd8dx/KyILImI/OAHz8vWbfcky/KEliBXliBskZaOdbLp7s9JLt8uubBVwkKb5MJWWdO7WXrWbRM/bBdlhWbX/Z9PfvyTn62CLUZR9MwHHwxsv1F6uSNJ7L9BT98dRdEzIlIXEfnhD5+Tbdu2J4DRdihrejfL9l17pFjuknyxU8qtPVJu6RY/1yZers186cGvJi+++NIq2HwURf9w4sSJLTd7151CfkQnPHq0f1sURf+0CvrCCz+Se3bsTLRbNOvu2iVtneulUOxcuWO+2fPQY8krv3h1FWy6Xq9/7+TJkxt+RxfUn4XA+BHQ/qP925rN5jOrqf/nH/9MvvL4NxLbb0mVDtKHH340OXDgtVWwyVq9/ncHDx5c+5mDfSpo/0dBjxw5Kv39H6yCjS4sLOw/cOBA141g+/fv/+zBbge00Wh8V0QOisiv5udrf/Pyyy+33XDevuMi+J8AvYn/9wZTnxXoylQyN0yo7EYp9//t/8r+C0f7Ysof8qZPAAAAAElFTkSuQmCC";
+var avatarImg = new Image();
+avatarImg.onload = function(){
+  dirty=true;
+  var logoEl = document.getElementById('avatar-logo');
+  if (logoEl) logoEl.src = AVATAR_SRC;
+};
+avatarImg.src = AVATAR_SRC;
+// ── CITIES ────────────────────────────────────────────────────────────────────
+// minZoom = minimum real zoom level at which this city appears
+var CITIES = [
+  // Major cities
+  { name:'Oslo',          lat:59.9139, lon:10.7522, pop:3, minZoom:4  },
+  { name:'Gothenburg',    lat:57.7089, lon:11.9746, pop:3, minZoom:4  },
+  { name:'Copenhagen',    lat:55.6761, lon:12.5683, pop:3, minZoom:4  },
+  { name:'Stockholm',     lat:59.3293, lon:18.0686, pop:3, minZoom:4  },
+  // Regional coastal cities
+  { name:'Drammen',       lat:59.7440, lon:10.2045, pop:2, minZoom:7  },
+  { name:'Fredrikstad',   lat:59.2181, lon:10.9298, pop:2, minZoom:7  },
+  { name:'Moss',          lat:59.4339, lon:10.6578, pop:2, minZoom:7  },
+  { name:'Tønsberg',     lat:59.2671, lon:10.4076, pop:2, minZoom:7  },
+  { name:'Sandefjord',    lat:59.1310, lon:10.2167, pop:2, minZoom:7  },
+  { name:'Larvik',        lat:59.0561, lon:10.0291, pop:2, minZoom:7  },
+  { name:'Porsgrunn',     lat:59.1404, lon:9.6561,  pop:2, minZoom:7  },
+  { name:'Skien',         lat:59.2090, lon:9.6099,  pop:2, minZoom:7  },
+  { name:'Horten',        lat:59.4192, lon:10.4836, pop:2, minZoom:7 },
+  { name:'Halden',        lat:59.1225, lon:11.3878, pop:2, minZoom:7 },
+  { name:'Sarpsborg',     lat:59.2839, lon:11.1097, pop:2, minZoom:7 },
+  // Coastal towns along the swimming route
+  { name:'Kragerø',      lat:58.8667, lon:9.4167,  pop:1, minZoom:9 },
+  { name:'Bamble',        lat:59.0333, lon:9.6500,  pop:1, minZoom:9 },
+  { name:'Holmestrand',   lat:59.4903, lon:10.3212, pop:1, minZoom:9 },
+  { name:'Nøtterøy',    lat:59.2000, lon:10.4000, pop:1, minZoom:9 },
+  { name:'Tjøme',        lat:59.1167, lon:10.4167, pop:1, minZoom:9 },
+  { name:'Åsgårdstrand',lat:59.3464, lon:10.4650, pop:1, minZoom:9 },
+  { name:'Stokke',        lat:59.2201, lon:10.2933, pop:1, minZoom:9 },
+  { name:'Svelvik',       lat:59.6125, lon:10.3836, pop:1, minZoom:9 },
+  { name:'Sande',         lat:59.5967, lon:10.2200, pop:1, minZoom:9 },
+  // More small coastal places
+  { name:'Veierland',     lat:59.2333, lon:10.4500, pop:1, minZoom:9 },
+  { name:'Færder',       lat:59.0333, lon:10.5167, pop:1, minZoom:9 },
+  // Southwest of Kragerø — Risør/Tvedestrand/Arendal coast
+  { name:'Risør',        lat:58.7167, lon:9.2333,  pop:2, minZoom:7  },
+  { name:'Tvedestrand',   lat:58.6167, lon:8.9333,  pop:2, minZoom:7  },
+  { name:'Arendal',       lat:58.4614, lon:8.7725,  pop:2, minZoom:7  },
+  { name:'Grimstad',      lat:58.3400, lon:8.5933,  pop:2, minZoom:7  },
+  { name:'Kristiansand',  lat:58.1467, lon:7.9956,  pop:3, minZoom:4  },
+  { name:'Lillesand',     lat:58.2500, lon:8.3833,  pop:1, minZoom:9 },
+  { name:'Søndeled',     lat:58.7500, lon:9.1167,  pop:1, minZoom:9 },
+  { name:'Lyngør',       lat:58.6333, lon:9.1500,  pop:1, minZoom:9 },
+  { name:'Gjeving',       lat:58.6833, lon:9.0833,  pop:1, minZoom:9 },
+  { name:'Saltrød',       lat:58.5167, lon:8.8333,  pop:1, minZoom:9 },
+  { name:'Eydehavn',      lat:58.5000, lon:8.8667,  pop:1, minZoom:9 },
+  { name:'Fevik',         lat:58.3833, lon:8.6667,  pop:1, minZoom:9 },
+  { name:'Gjervoldsøy',  lat:58.6833, lon:9.2167,  pop:1, minZoom:9 },
+  { name:'Stangnes',      lat:58.7833, lon:9.2667,  pop:1, minZoom:9 },
+  // West of Kristiansand to Stavanger
+  { name:'Mandal',        lat:58.0292, lon:7.4603,  pop:2, minZoom:7  },
+  { name:'Farsund',       lat:58.0950, lon:6.8000,  pop:2, minZoom:7  },
+  { name:'Flekkefjord',   lat:58.2983, lon:6.6617,  pop:2, minZoom:7  },
+  { name:'Lyngdal',       lat:58.1400, lon:7.0667,  pop:1, minZoom:9 },
+  { name:'Lindesnes',     lat:57.9833, lon:7.0500,  pop:1, minZoom:9 },
+  { name:'Spangereid',    lat:58.0333, lon:7.2167,  pop:1, minZoom:9 },
+  { name:'Vigeland',      lat:58.0667, lon:7.3333,  pop:1, minZoom:9 },
+  { name:'Kvinesdal',     lat:58.3167, lon:6.9500,  pop:1, minZoom:9 },
+  { name:'Åna-Sira',     lat:58.2833, lon:6.5333,  pop:1, minZoom:9 },
+  { name:'Egersund',      lat:58.4500, lon:5.9833,  pop:2, minZoom:7  },
+  // Egersund to Jæren
+  { name:'Ogna',          lat:58.5333, lon:5.8167,  pop:1, minZoom:9 },
+  { name:'Brusand',       lat:58.5667, lon:5.7667,  pop:1, minZoom:9 },
+  { name:'Sirevåg',      lat:58.5167, lon:5.8667,  pop:1, minZoom:9 },
+  { name:'Hellvik',       lat:58.4833, lon:5.9167,  pop:1, minZoom:9 },
+  { name:'Heskestad',     lat:58.5500, lon:6.1167,  pop:1, minZoom:9 },
+  { name:'Hauge i Dalane',lat:58.3500, lon:6.3167,  pop:1, minZoom:9 },
+  // Jæren to Stavanger along coast
+  { name:'Jæren',        lat:58.7000, lon:5.5500,  pop:1, minZoom:9 },
+  { name:'Varhaug',       lat:58.6167, lon:5.6500,  pop:1, minZoom:9 },
+  { name:'Nærbø',        lat:58.6667, lon:5.6500,  pop:1, minZoom:9 },
+  { name:'Bryne',         lat:58.7333, lon:5.6500,  pop:1, minZoom:9 },
+  { name:'Klepp',         lat:58.7833, lon:5.6333,  pop:1, minZoom:9 },
+  { name:'Bore',          lat:58.8167, lon:5.5833,  pop:1, minZoom:9 },
+  { name:'Orre',          lat:58.8000, lon:5.5500,  pop:1, minZoom:9 },
+  { name:'Sola',          lat:58.8833, lon:5.6167,  pop:1, minZoom:9 },
+  { name:'Tananger',      lat:58.9333, lon:5.5667,  pop:1, minZoom:9 },
+  { name:'Vigdel',        lat:58.8500, lon:5.5667,  pop:1, minZoom:9 },
+  { name:'Revheim',       lat:58.9333, lon:5.6167,  pop:1, minZoom:9 },
+  { name:'Hafrsfjord',    lat:58.9333, lon:5.6667,  pop:1, minZoom:9 },
+  // Stavanger to Haugesund (islands and fjord coast)
+  { name:'Sandnes',       lat:58.8522, lon:5.7356,  pop:2, minZoom:7  },
+  { name:'Tau',           lat:59.0667, lon:5.9167,  pop:1, minZoom:9 },
+  { name:'Jørpeland',    lat:59.0167, lon:6.0500,  pop:1, minZoom:9 },
+  { name:'Judaberg',      lat:59.2667, lon:5.6667,  pop:1, minZoom:9 },
+  { name:'Nedstrand',     lat:59.3500, lon:5.7667,  pop:1, minZoom:9 },
+  { name:'Suldalsosen',   lat:59.5333, lon:6.5167,  pop:1, minZoom:9 },
+  { name:'Sand',          lat:59.4833, lon:6.2667,  pop:1, minZoom:9 },
+  { name:'Sauda',         lat:59.6500, lon:6.3500,  pop:1, minZoom:9 },
+  { name:'Skudeneshavn',  lat:59.1500, lon:5.2667,  pop:1, minZoom:9 },
+  { name:'Kopervik',      lat:59.2833, lon:5.3000,  pop:1, minZoom:9 },
+  { name:'Åkrehamn',     lat:59.2500, lon:5.1833,  pop:1, minZoom:9 },
+  { name:'Avaldsnes',     lat:59.3500, lon:5.2833,  pop:1, minZoom:9 },
+  { name:'Veavågen',     lat:59.3167, lon:5.2500,  pop:1, minZoom:9 },
+  { name:'Kvitsøy',      lat:59.0667, lon:5.4167,  pop:1, minZoom:9 },
+  { name:'Bokn',          lat:59.2167, lon:5.5167,  pop:1, minZoom:9 },
+  { name:'Mosterøy',     lat:59.0833, lon:5.6167,  pop:1, minZoom:9 },
+  { name:'Rennesøy',     lat:59.1000, lon:5.5833,  pop:1, minZoom:9 },
+  { name:'Finnøy',       lat:59.2167, lon:5.8500,  pop:1, minZoom:9 },
+  { name:'Jelsa',         lat:59.5000, lon:5.9667,  pop:1, minZoom:9 },
+  { name:'Sjernarøy',    lat:59.2000, lon:5.8000,  pop:1, minZoom:9 },
+  { name:'Hjelmeland',    lat:59.2333, lon:6.1833,  pop:1, minZoom:9 },
+  { name:'Fisterøy',     lat:59.1500, lon:5.9833,  pop:1, minZoom:9 },
+  // Haugesund to Bergen (Sunnhordland coast + islands)
+  { name:'Haugesund',     lat:59.4133, lon:5.2683,  pop:2, minZoom:7  },
+  { name:'Leirvik',       lat:59.7833, lon:5.4667,  pop:2, minZoom:7  },
+  { name:'Stord',         lat:59.7833, lon:5.5000,  pop:1, minZoom:9 },
+  { name:'Fitjar',        lat:59.9167, lon:5.5833,  pop:1, minZoom:9 },
+  { name:'Sunde',         lat:59.8500, lon:5.4833,  pop:1, minZoom:9 },
+  { name:'Husnes',        lat:59.8667, lon:5.7667,  pop:1, minZoom:9 },
+  { name:'Rosendal',      lat:59.9833, lon:6.0167,  pop:1, minZoom:9 },
+  { name:'Åkra',         lat:59.2667, lon:5.1667,  pop:1, minZoom:9 },
+  { name:'Bømlo',        lat:59.7833, lon:5.2000,  pop:1, minZoom:9 },
+  { name:'Mosterhamn',    lat:59.7000, lon:5.3667,  pop:1, minZoom:9 },
+  { name:'Øygarden',     lat:60.5333, lon:4.8500,  pop:1, minZoom:9 },
+  { name:'Sund',          lat:60.2500, lon:4.9667,  pop:1, minZoom:9 },
+  { name:'Austevoll',     lat:60.0833, lon:5.2333,  pop:1, minZoom:9 },
+  { name:'Tysnes',        lat:59.9333, lon:5.5333,  pop:1, minZoom:9 },
+  { name:'Kvinnherad',    lat:59.9667, lon:5.9833,  pop:1, minZoom:9 },
+  { name:'Os',            lat:60.1833, lon:5.4667,  pop:1, minZoom:9 },
+  { name:'Fusa',          lat:60.2500, lon:5.5833,  pop:1, minZoom:9 },
+  { name:'Askøy',        lat:60.4667, lon:5.1667,  pop:1, minZoom:9 },
+  { name:'Sotra',         lat:60.3500, lon:5.1000,  pop:1, minZoom:9 },
+  { name:'Fedje',         lat:60.7667, lon:4.7167,  pop:1, minZoom:9 },
+  { name:'Masfjorden',    lat:60.8833, lon:5.4500,  pop:1, minZoom:9 },
+  { name:'Lindås',       lat:60.6333, lon:5.1667,  pop:1, minZoom:9 },
+  { name:'Meland',        lat:60.5667, lon:5.1167,  pop:1, minZoom:9 },
+  { name:'Hordaland',     lat:60.1500, lon:5.5333,  pop:1, minZoom:9 },
+  { name:'Etne',          lat:59.6667, lon:5.9333,  pop:1, minZoom:9 },
+  { name:'Sveio',         lat:59.6500, lon:5.3833,  pop:1, minZoom:9 },
+  { name:'Urangsvåg',    lat:59.8833, lon:5.1167,  pop:1, minZoom:9 },
+  { name:'Rubbestadneset',lat:59.7500, lon:5.2667,  pop:1, minZoom:9 },
+  { name:'Langevåg',     lat:59.9333, lon:5.0833,  pop:1, minZoom:9 },
+  { name:'Espevær',      lat:59.5833, lon:5.1833,  pop:1, minZoom:9 },
+  { name:'Ryvarden',      lat:59.7333, lon:5.2167,  pop:1, minZoom:9 },
+  { name:'Sletta',        lat:60.5500, lon:4.8833,  pop:1, minZoom:9 },
+  { name:'Hjellestad',    lat:60.2833, lon:5.2833,  pop:1, minZoom:9 },
+  // Bergen to Florø already covered, Florø to Ålesund
+  { name:'Florø',        lat:61.5997, lon:5.0333,  pop:2, minZoom:7  },
+  { name:'Bremanger',     lat:61.8333, lon:5.0667,  pop:1, minZoom:9 },
+  { name:'Selje',         lat:62.0500, lon:5.3667,  pop:1, minZoom:9 },
+  { name:'Måløy',        lat:61.9333, lon:5.1167,  pop:1, minZoom:9 },
+  { name:'Raudeberg',     lat:61.9833, lon:5.1333,  pop:1, minZoom:9 },
+  { name:'Kalvåg',       lat:61.9000, lon:5.0167,  pop:1, minZoom:9 },
+  { name:'Daløy',        lat:61.9333, lon:5.0667,  pop:1, minZoom:9 },
+  { name:'Nordfjordeid',  lat:61.9000, lon:5.9833,  pop:1, minZoom:9 },
+  { name:'Stryn',         lat:61.9167, lon:6.7167,  pop:1, minZoom:9 },
+  { name:'Eid',           lat:61.8667, lon:5.9333,  pop:1, minZoom:9 },
+  { name:'Deknepollen',   lat:62.0167, lon:5.4333,  pop:1, minZoom:9 },
+  { name:'Åheim',        lat:62.2000, lon:5.5500,  pop:1, minZoom:9 },
+  { name:'Vanylven',      lat:62.1000, lon:5.5833,  pop:1, minZoom:9 },
+  { name:'Syvde',         lat:62.1500, lon:5.7000,  pop:1, minZoom:9 },
+  { name:'Rovde',         lat:62.1333, lon:5.6500,  pop:1, minZoom:9 },
+  { name:'Dragsund',      lat:62.2333, lon:5.8333,  pop:1, minZoom:9 },
+  { name:'Fosnavåg',     lat:62.3500, lon:5.6333,  pop:1, minZoom:9 },
+  { name:'Ulsteinvik',    lat:62.3333, lon:5.8500,  pop:1, minZoom:9 },
+  { name:'Hareid',        lat:62.3667, lon:5.9833,  pop:1, minZoom:9 },
+  { name:'Ørsta',        lat:62.2000, lon:6.1333,  pop:1, minZoom:9 },
+  { name:'Volda',         lat:62.1500, lon:6.0833,  pop:1, minZoom:9 },
+  { name:'Hornindal',     lat:61.9667, lon:6.5167,  pop:1, minZoom:9 },
+  { name:'Stranda',       lat:62.3167, lon:6.9333,  pop:1, minZoom:9 },
+  { name:'Sykkylven',     lat:62.3833, lon:6.5667,  pop:1, minZoom:9 },
+  { name:'Sula',          lat:62.4333, lon:6.1667,  pop:1, minZoom:9 },
+  { name:'Giske',         lat:62.5000, lon:6.0833,  pop:1, minZoom:9 },
+  { name:'Vigra',         lat:62.5500, lon:6.0500,  pop:1, minZoom:9 },
+  { name:'Valderøy',     lat:62.5167, lon:6.1500,  pop:1, minZoom:9 },
+  { name:'Brattvåg',     lat:62.5833, lon:6.5167,  pop:1, minZoom:9 },
+  { name:'Vestnes',       lat:62.6167, lon:7.2500,  pop:1, minZoom:9 },
+  { name:'Aukra',         lat:62.8167, lon:6.9500,  pop:1, minZoom:9 },
+  { name:'Midsund',       lat:62.6667, lon:6.9833,  pop:1, minZoom:9 },
+  { name:'Sandøy',       lat:62.8000, lon:6.8000,  pop:1, minZoom:9 },
+  { name:'Ona',           lat:62.8667, lon:6.5500,  pop:1, minZoom:9 },
+  // Hordaland / Vestland north of Bergen
+  { name:'Voss',          lat:60.6278, lon:6.4167,  pop:1, minZoom:9 },
+  // Sogn og Fjordane
+  { name:'Førde',        lat:61.4514, lon:5.8572,  pop:2, minZoom:7  },
+  { name:'Sogndal',       lat:61.2297, lon:7.0950,  pop:1, minZoom:9 },
+  { name:'Høyanger',     lat:61.2167, lon:6.0833,  pop:1, minZoom:9 },
+  // Møre og Romsdal
+  { name:'Ålesund',      lat:62.4722, lon:6.1549,  pop:3, minZoom:4  },
+  { name:'Molde',         lat:62.7372, lon:7.1591,  pop:2, minZoom:7  },
+  { name:'Kristiansund',  lat:63.1103, lon:7.7278,  pop:2, minZoom:7  },
+  { name:'Elnesvågen',   lat:62.8500, lon:7.0833,  pop:1, minZoom:9 },
+  { name:'Sunndalsøra',  lat:62.6833, lon:8.5667,  pop:1, minZoom:9 },
+  { name:'Brattvåg',     lat:62.5833, lon:6.5167,  pop:1, minZoom:9 },
+  { name:'Vestnes',       lat:62.6167, lon:7.2500,  pop:1, minZoom:9 },
+  // Trøndelag
+  { name:'Trondheim',     lat:63.4305, lon:10.3951, pop:3, minZoom:4  },
+  { name:'Steinkjer',     lat:64.0147, lon:11.4950, pop:2, minZoom:7  },
+  { name:'Namsos',        lat:64.4667, lon:11.4983, pop:2, minZoom:7  },
+  { name:'Levanger',      lat:63.7450, lon:11.2983, pop:1, minZoom:9 },
+  { name:'Verdalsøra',   lat:63.7833, lon:11.4833, pop:1, minZoom:9 },
+  { name:'Orkanger',      lat:63.3000, lon:9.8500,  pop:1, minZoom:9 },
+  { name:'Stjørdal',     lat:63.4667, lon:10.9167, pop:1, minZoom:9 },
+  { name:'Rørvik',       lat:64.8667, lon:11.2333, pop:1, minZoom:9 },
+  { name:'Kolvereid',     lat:64.8667, lon:11.6000, pop:1, minZoom:9 },
+  { name:'Åfjord',       lat:63.9667, lon:10.2000, pop:1, minZoom:9 },
+  { name:'Brekstad',      lat:63.6833, lon:9.6833,  pop:1, minZoom:9 },
+  { name:'Frøya',        lat:63.7167, lon:8.6833,  pop:1, minZoom:9 },
+  { name:'Hitra',         lat:63.5667, lon:8.7500,  pop:1, minZoom:9 },
+  { name:'Smøla',        lat:63.3833, lon:8.0500,  pop:1, minZoom:9 },
+  // Nordland
+  { name:'Bodø',         lat:67.2833, lon:14.3750, pop:3, minZoom:4  },
+  { name:'Mo i Rana',    lat:66.3167, lon:14.1500, pop:2, minZoom:7  },
+  { name:'Mosjøen',     lat:65.8333, lon:13.2000, pop:2, minZoom:7  },
+  { name:'Sandnessjøen', lat:66.0167, lon:12.6333, pop:2, minZoom:7  },
+  { name:'Brønnøysund',  lat:65.4667, lon:12.2167, pop:2, minZoom:7  },
+  { name:'Narvik',        lat:68.4383, lon:17.4272, pop:2, minZoom:7  },
+  { name:'Svolvær',      lat:68.2333, lon:14.5667, pop:2, minZoom:7  },
+  { name:'Leknes',        lat:68.1500, lon:13.6000, pop:1, minZoom:9 },
+  { name:'Stokmarknes',   lat:68.5667, lon:14.9167, pop:1, minZoom:9 },
+  { name:'Sortland',      lat:68.7000, lon:15.4167, pop:1, minZoom:9 },
+  { name:'Andenes',       lat:69.3167, lon:16.1167, pop:1, minZoom:9 },
+  { name:'Myre',          lat:68.9333, lon:15.0833, pop:1, minZoom:9 },
+  { name:'Alstahaug',     lat:65.8667, lon:12.6167, pop:1, minZoom:9 },
+  { name:'Lurøy',        lat:66.4167, lon:12.5000, pop:1, minZoom:9 },
+  { name:'Meløy',        lat:66.8667, lon:13.7000, pop:1, minZoom:9 },
+  { name:'Gildeskål',    lat:67.0167, lon:14.0833, pop:1, minZoom:9 },
+  { name:'Fauske',        lat:67.2500, lon:15.4000, pop:1, minZoom:9 },
+  { name:'Røst',         lat:67.5167, lon:12.1000, pop:1, minZoom:9 },
+  { name:'Værøy',        lat:67.6667, lon:12.6667, pop:1, minZoom:9 },
+  // Troms
+  { name:'Tromsø',       lat:69.6833, lon:18.9500, pop:3, minZoom:4  },
+  { name:'Harstad',       lat:68.8000, lon:16.5333, pop:2, minZoom:7  },
+  { name:'Finnsnes',      lat:69.2333, lon:17.9833, pop:2, minZoom:7  },
+  { name:'Lenvik',        lat:69.3000, lon:17.9833, pop:1, minZoom:9 },
+  { name:'Bardufoss',     lat:69.0667, lon:18.5000, pop:1, minZoom:9 },
+  { name:'Sjøvegan',     lat:68.9000, lon:17.8667, pop:1, minZoom:9 },
+  { name:'Silsand',       lat:69.2500, lon:18.2667, pop:1, minZoom:9 },
+  { name:'Storsteinnes',  lat:69.2333, lon:19.2333, pop:1, minZoom:9 },
+  { name:'Lyngseidet',    lat:69.5833, lon:20.2167, pop:1, minZoom:9 },
+  { name:'Skjervøy',     lat:70.0333, lon:20.9833, pop:1, minZoom:9 },
+  { name:'Storslett',     lat:69.7667, lon:21.0333, pop:1, minZoom:9 },
+  { name:'Burfjord',      lat:69.9333, lon:21.8167, pop:1, minZoom:9 },
+  { name:'Sørkjosen',    lat:69.7833, lon:20.9833, pop:1, minZoom:9 },
+  // Finnmark
+  { name:'Alta',          lat:69.9681, lon:23.2717, pop:2, minZoom:7  },
+  { name:'Hammerfest',    lat:70.6633, lon:23.6819, pop:2, minZoom:7  },
+  { name:'Honningsvåg',  lat:70.9833, lon:25.9667, pop:2, minZoom:7  },
+  { name:'Nordkapp',      lat:71.1700, lon:25.7800, pop:2, minZoom:7  },
+  { name:'Vadsø',        lat:70.0742, lon:29.7511, pop:2, minZoom:7  },
+  { name:'Kirkenes',      lat:69.7272, lon:30.0451, pop:2, minZoom:7  },
+  { name:'Vardø',        lat:70.3711, lon:31.1097, pop:2, minZoom:7  },
+  { name:'Berlevåg',     lat:70.8578, lon:29.0867, pop:1, minZoom:9 },
+  { name:'Båtsfjord',    lat:70.6333, lon:29.7167, pop:1, minZoom:9 },
+  { name:'Mehamn',        lat:71.0333, lon:27.8500, pop:1, minZoom:9 },
+  { name:'Kjøllefjord',   lat:70.9000, lon:27.3500, pop:1, minZoom:9 },
+  { name:'Lakselv',       lat:70.0500, lon:24.9667, pop:1, minZoom:9 },
+  { name:'Havøysund',    lat:70.9833, lon:24.6667, pop:1, minZoom:9 },
+  { name:'Repvåg',       lat:70.7667, lon:25.6833, pop:1, minZoom:9 },
+  { name:'Skarsvåg',     lat:71.1167, lon:25.8333, pop:1, minZoom:9 },
+  { name:'Bugøynes',      lat:69.9667, lon:29.6833, pop:1, minZoom:9 },
+  { name:'Nesseby',       lat:70.1167, lon:28.8833, pop:1, minZoom:9 },
+  // Rogaland coast (Stavanger area)
+  { name:'Rennesøy',     lat:59.1167, lon:5.5833,  pop:1, minZoom:9 },
+  { name:'Kvitsøy',      lat:59.0667, lon:5.4000,  pop:1, minZoom:9 },
+  { name:'Bokn',          lat:59.2333, lon:5.5667,  pop:1, minZoom:9 },
+  { name:'Skudeneshavn', lat:59.1500, lon:5.2500,  pop:1, minZoom:9 },
+  { name:'Kopervik',      lat:59.2833, lon:5.3000,  pop:1, minZoom:9 },
+  { name:'Aksdal',        lat:59.4000, lon:5.4833,  pop:1, minZoom:9 },
+  { name:'Syre',          lat:59.0833, lon:5.7333,  pop:1, minZoom:9 },
+  { name:'Judaberg',      lat:59.3000, lon:5.6833,  pop:1, minZoom:9 },
+  { name:'Nedstrand',     lat:59.3667, lon:5.8000,  pop:1, minZoom:9 },
+  { name:'Jelsa',         lat:59.5667, lon:5.9667,  pop:1, minZoom:9 },
+  { name:'Sand',          lat:59.4833, lon:6.2667,  pop:1, minZoom:9 },
+  { name:'Suldalsosen',   lat:59.5167, lon:6.5000,  pop:1, minZoom:9 },
+  // Hordaland between Stavanger and Bergen
+  { name:'Rosendal',      lat:59.9833, lon:6.0167,  pop:1, minZoom:9 },
+  { name:'Husnes',        lat:59.8667, lon:5.7667,  pop:1, minZoom:9 },
+  { name:'Leirvik',       lat:59.7833, lon:5.4667,  pop:1, minZoom:9 },
+  { name:'Bømlo',        lat:59.7500, lon:5.2333,  pop:1, minZoom:9 },
+  { name:'Mosterhamn',    lat:59.7000, lon:5.3833,  pop:1, minZoom:9 },
+  { name:'Sæbøvik',      lat:59.8333, lon:5.6000,  pop:1, minZoom:9 },
+  { name:'Sunndalsøra',  lat:59.9500, lon:5.7833,  pop:1, minZoom:9 },
+  { name:'Kvinnherad',    lat:59.9667, lon:6.1167,  pop:1, minZoom:9 },
+  { name:'Mundheim',      lat:60.1167, lon:5.8500,  pop:1, minZoom:9 },
+  { name:'Osøyro',       lat:60.1833, lon:5.4833,  pop:1, minZoom:9 },
+  { name:'Kleppestø',    lat:60.3833, lon:5.1000,  pop:1, minZoom:9 },
+  { name:'Straume',       lat:60.3500, lon:5.1167,  pop:1, minZoom:9 },
+  { name:'Hjellestad',    lat:60.2833, lon:5.2833,  pop:1, minZoom:9 },
+  // Bergen to Florø
+  { name:'Knarvik',       lat:60.5500, lon:5.2833,  pop:1, minZoom:9 },
+  { name:'Mongstad',      lat:60.8167, lon:5.0333,  pop:1, minZoom:9 },
+  { name:'Brekke',        lat:60.9833, lon:5.4667,  pop:1, minZoom:9 },
+  { name:'Gulen',         lat:60.9000, lon:5.3167,  pop:1, minZoom:9 },
+  { name:'Solund',        lat:61.0833, lon:4.8333,  pop:1, minZoom:9 },
+  { name:'Askvoll',       lat:61.3500, lon:5.0667,  pop:1, minZoom:9 },
+  { name:'Fjaler',        lat:61.4000, lon:5.5667,  pop:1, minZoom:9 },
+  { name:'Naustdal',      lat:61.5167, lon:5.7000,  pop:1, minZoom:9 },
+  { name:'Svelgen',       lat:61.7667, lon:5.3000,  pop:1, minZoom:9 },
+  { name:'Kalvåg',       lat:61.8833, lon:4.9833,  pop:1, minZoom:9 },
+  { name:'Raudeberg',     lat:61.9833, lon:5.1500,  pop:1, minZoom:9 },
+  // Nordfjord to Ålesund
+  { name:'Nordfjordeid',  lat:61.9000, lon:5.9833,  pop:1, minZoom:9 },
+  { name:'Sandane',       lat:61.7667, lon:6.2167,  pop:1, minZoom:9 },
+  { name:'Gloppen',       lat:61.8167, lon:6.4833,  pop:1, minZoom:9 },
+  { name:'Loen',          lat:61.8667, lon:6.8500,  pop:1, minZoom:9 },
+  { name:'Olden',         lat:61.8500, lon:6.8000,  pop:1, minZoom:9 },
+  { name:'Ørsta',        lat:62.2000, lon:6.1333,  pop:1, minZoom:9 },
+  { name:'Fosnavåg',     lat:62.3500, lon:5.6333,  pop:1, minZoom:9 },
+  { name:'Gurskøy',      lat:62.3000, lon:5.6667,  pop:1, minZoom:9 },
+  { name:'Strandebarm',   lat:60.3000, lon:6.0000,  pop:1, minZoom:9 },
+  // Ålesund to Kristiansund
+  { name:'Valldal',       lat:62.3167, lon:7.5167,  pop:1, minZoom:9 },
+  { name:'Eidsdal',       lat:62.2833, lon:7.2500,  pop:1, minZoom:9 },
+  { name:'Åfarnes',      lat:62.5667, lon:7.5000,  pop:1, minZoom:9 },
+  { name:'Åndalsnes',    lat:62.5667, lon:7.6833,  pop:2, minZoom:7 },
+  { name:'Isfjorden',     lat:62.5833, lon:7.6667,  pop:1, minZoom:9 },
+  { name:'Ørskog',       lat:62.4667, lon:6.8167,  pop:1, minZoom:9 },
+  { name:'Sjøholt',      lat:62.4167, lon:6.9833,  pop:1, minZoom:9 },
+  { name:'Tomrefjord',    lat:62.5667, lon:7.0833,  pop:1, minZoom:9 },
+  { name:'Batnfjordsøra',lat:62.8833, lon:7.7000,  pop:1, minZoom:9 },
+  { name:'Eide',          lat:62.9167, lon:7.5333,  pop:1, minZoom:9 },
+  { name:'Averøy',       lat:63.0167, lon:7.5500,  pop:1, minZoom:9 },
+  // Kristiansund to Trondheim
+  { name:'Halsa',         lat:63.0833, lon:8.2333,  pop:1, minZoom:9 },
+  { name:'Hemne',         lat:63.2167, lon:9.1667,  pop:1, minZoom:9 },
+  { name:'Kyrksæterøra', lat:63.2833, lon:9.5500,  pop:1, minZoom:9 },
+  { name:'Meldal',        lat:63.1333, lon:9.8667,  pop:1, minZoom:9 },
+  { name:'Fannrem',       lat:63.2167, lon:9.6000,  pop:1, minZoom:9 },
+  { name:'Agdenes',       lat:63.5667, lon:9.5833,  pop:1, minZoom:9 },
+  { name:'Rissa',         lat:63.5833, lon:9.9500,  pop:1, minZoom:9 },
+  { name:'Leksvik',       lat:63.6667, lon:10.6333, pop:1, minZoom:9 },
+  { name:'Skatval',       lat:63.5167, lon:10.9833, pop:1, minZoom:9 },
+  { name:'Hommelvik',     lat:63.4000, lon:10.7833, pop:1, minZoom:9 },
+  { name:'Malvik',        lat:63.4333, lon:10.6833, pop:1, minZoom:9 },
+  // Trondheim to Namsos
+  { name:'Åsen',         lat:63.6667, lon:10.8833, pop:1, minZoom:9 },
+  { name:'Straumen',      lat:63.8667, lon:10.9667, pop:1, minZoom:9 },
+  { name:'Inderøy',      lat:63.9833, lon:11.3000, pop:1, minZoom:9 },
+  { name:'Sparbu',        lat:64.0000, lon:11.5667, pop:1, minZoom:9 },
+  { name:'Snåsa',        lat:64.2500, lon:12.3833, pop:1, minZoom:9 },
+  { name:'Grong',         lat:64.4667, lon:13.0000, pop:1, minZoom:9 },
+  { name:'Bangsund',      lat:64.4500, lon:11.5833, pop:1, minZoom:9 },
+  { name:'Spillum',       lat:64.4667, lon:11.5500, pop:1, minZoom:9 },
+  // Namsos to Brønnøysund
+  { name:'Nærøy',        lat:64.8167, lon:11.4833, pop:1, minZoom:9 },
+  { name:'Leka',          lat:65.1000, lon:11.6500, pop:1, minZoom:9 },
+  { name:'Bindal',        lat:65.3333, lon:12.3167, pop:1, minZoom:9 },
+  { name:'Vikna',         lat:64.9000, lon:11.0667, pop:1, minZoom:9 },
+  { name:'Austvågøy',    lat:68.2167, lon:14.5667, pop:1, minZoom:9 },
+  { name:'Terråk',       lat:65.4333, lon:12.3667, pop:1, minZoom:9 },
+  // Brønnøysund to Sandnessjøen
+  { name:'Tjøtta',       lat:65.8500, lon:12.4167, pop:1, minZoom:9 },
+  { name:'Vevelstad',     lat:65.7167, lon:12.3167, pop:1, minZoom:9 },
+  { name:'Forvik',        lat:65.7667, lon:12.4000, pop:1, minZoom:9 },
+  { name:'Silvalen',      lat:65.7167, lon:13.5167, pop:1, minZoom:9 },
+  { name:'Søvik',        lat:66.0333, lon:12.7500, pop:1, minZoom:9 },
+  { name:'Stokkvågen',   lat:66.2167, lon:13.1000, pop:1, minZoom:9 },
+  // Sandnessjøen to Mo i Rana
+  { name:'Tonnes',        lat:66.3833, lon:13.3833, pop:1, minZoom:9 },
+  { name:'Hemnesberget',  lat:66.2333, lon:13.6667, pop:1, minZoom:9 },
+  { name:'Korgen',        lat:66.1167, lon:13.8167, pop:1, minZoom:9 },
+  { name:'Drevja',        lat:65.9833, lon:13.2833, pop:1, minZoom:9 },
+  { name:'Nesna',         lat:66.2000, lon:13.0167, pop:1, minZoom:9 },
+  { name:'Bjørn',        lat:66.1667, lon:12.8333, pop:1, minZoom:9 },
+  // Mo i Rana to Bodø
+  { name:'Høland',       lat:66.4833, lon:13.9000, pop:1, minZoom:9 },
+  { name:'Selfors',       lat:66.3000, lon:14.1167, pop:1, minZoom:9 },
+  { name:'Storforshei',   lat:66.3833, lon:14.0167, pop:1, minZoom:9 },
+  { name:'Rognan',        lat:67.1167, lon:15.3833, pop:1, minZoom:9 },
+  { name:'Saltdal',       lat:66.9833, lon:15.0333, pop:1, minZoom:9 },
+  { name:'Ørnes',        lat:66.8667, lon:13.7000, pop:1, minZoom:9 },
+  { name:'Inndyr',        lat:67.0000, lon:14.0833, pop:1, minZoom:9 },
+  { name:'Løding',       lat:67.2167, lon:14.6833, pop:1, minZoom:9 },
+  // Bodø to Narvik (Lofoten coast)
+  { name:'Kabelvåg',     lat:68.2167, lon:14.4833, pop:1, minZoom:9 },
+  { name:'Henningsvær',  lat:68.1500, lon:14.2000, pop:1, minZoom:9 },
+  { name:'Stamsund',      lat:68.1167, lon:13.8333, pop:1, minZoom:9 },
+  { name:'Ballstad',      lat:68.0667, lon:13.5500, pop:1, minZoom:9 },
+  { name:'Ramberg',       lat:68.0833, lon:13.2000, pop:1, minZoom:9 },
+  { name:'Flakstad',      lat:68.1167, lon:13.4333, pop:1, minZoom:9 },
+  { name:'Sørvågen',     lat:67.8833, lon:12.9333, pop:1, minZoom:9 },
+  { name:'Å i Lofoten',  lat:67.8667, lon:12.8833, pop:1, minZoom:9 },
+  { name:'Melbu',         lat:68.5000, lon:14.8167, pop:1, minZoom:9 },
+  { name:'Bøstad',       lat:68.1833, lon:13.7667, pop:1, minZoom:9 },
+  { name:'Gravdal',       lat:68.1167, lon:13.7333, pop:1, minZoom:9 },
+  { name:'Svolvær',      lat:68.2333, lon:14.5667, pop:1, minZoom:9 },
+  { name:'Lødingen',     lat:68.4167, lon:16.0000, pop:1, minZoom:9 },
+  { name:'Evenes',        lat:68.5833, lon:16.6833, pop:1, minZoom:9 },
+  { name:'Bogen',         lat:68.5500, lon:16.9833, pop:1, minZoom:9 },
+  // Narvik to Tromsø (Vesterålen + mainland)
+  { name:'Bjerkvik',      lat:68.5500, lon:17.5333, pop:1, minZoom:9 },
+  { name:'Elvegård',     lat:68.5333, lon:17.6167, pop:1, minZoom:9 },
+  { name:'Gratangen',     lat:68.6667, lon:17.1667, pop:1, minZoom:9 },
+  { name:'Lavangen',      lat:68.8000, lon:17.9667, pop:1, minZoom:9 },
+  { name:'Setermoen',     lat:68.8667, lon:18.3167, pop:1, minZoom:9 },
+  { name:'Salangen',      lat:68.8167, lon:17.9333, pop:1, minZoom:9 },
+  { name:'Tennevoll',     lat:68.7833, lon:17.6333, pop:1, minZoom:9 },
+  { name:'Grovfjord',     lat:68.6833, lon:17.0167, pop:1, minZoom:9 },
+  { name:'Kvæfjord',     lat:68.7833, lon:16.5667, pop:1, minZoom:9 },
+  { name:'Løvdal',       lat:68.9667, lon:17.3833, pop:1, minZoom:9 },
+  { name:'Aursfjordbotn', lat:69.4000, lon:19.4167, pop:1, minZoom:9 },
+  { name:'Nordkjosbotn',  lat:69.2167, lon:19.5167, pop:1, minZoom:9 },
+  { name:'Olsborg',       lat:69.0833, lon:18.6000, pop:1, minZoom:9 },
+  // Tromsø to Alta
+  { name:'Fagernes',      lat:69.7167, lon:18.7500, pop:1, minZoom:9 },
+  { name:'Tromsøysund',   lat:69.5667, lon:18.8500, pop:1, minZoom:9 },
+  { name:'Tromsdalen',    lat:69.6667, lon:19.0167, pop:1, minZoom:9 },
+  { name:'Lakselvbukt',   lat:69.7500, lon:20.1333, pop:1, minZoom:9 },
+  { name:'Balsfjord',     lat:69.3333, lon:19.3333, pop:1, minZoom:9 },
+  { name:'Reisafjord',    lat:69.7667, lon:21.1000, pop:1, minZoom:9 },
+  { name:'Rotsund',       lat:69.9500, lon:21.3000, pop:1, minZoom:9 },
+  { name:'Hamnvik',       lat:68.9667, lon:17.2500, pop:1, minZoom:9 },
+  { name:'Olderdalen',    lat:69.7167, lon:20.5000, pop:1, minZoom:9 },
+  { name:'Birtavarre',    lat:69.8000, lon:21.3833, pop:1, minZoom:9 },
+  { name:'Kåfjord',      lat:69.9000, lon:21.9333, pop:1, minZoom:9 },
+  { name:'Alteidet',      lat:70.0333, lon:22.6667, pop:1, minZoom:9 },
+  // Alta to Hammerfest
+  { name:'Talvik',        lat:70.0667, lon:23.0500, pop:1, minZoom:9 },
+  { name:'Kviby',         lat:70.1500, lon:23.1500, pop:1, minZoom:9 },
+  { name:'Storekorsnes',  lat:70.3000, lon:22.6833, pop:1, minZoom:9 },
+  { name:'Øksfjord',     lat:70.2333, lon:22.3500, pop:1, minZoom:9 },
+  { name:'Loppa',         lat:70.3167, lon:21.3667, pop:1, minZoom:9 },
+  { name:'Hasvik',        lat:70.4833, lon:22.1500, pop:1, minZoom:9 },
+  { name:'Breivikbotn',   lat:70.4667, lon:22.4833, pop:1, minZoom:9 },
+  { name:'Sørøysund',    lat:70.6000, lon:23.2167, pop:1, minZoom:9 },
+  // Hammerfest to Nordkapp
+  { name:'Stallogargo',   lat:70.7500, lon:24.0833, pop:1, minZoom:9 },
+  { name:'Kokelv',        lat:70.7000, lon:24.2833, pop:1, minZoom:9 },
+  { name:'Revsneshamn',   lat:70.7833, lon:24.6000, pop:1, minZoom:9 },
+  { name:'Øksfjordhamn', lat:70.4000, lon:21.9500, pop:1, minZoom:9 },
+  { name:'Tufjord',       lat:70.8000, lon:24.7000, pop:1, minZoom:9 },
+  { name:'Gjesvær',      lat:71.1000, lon:25.5000, pop:1, minZoom:9 },
+  { name:'Kamøyvær',     lat:71.0500, lon:25.8667, pop:1, minZoom:9 },
+  // Nordkapp to Kirkenes
+  { name:'Kjelvik',       lat:70.9667, lon:26.4333, pop:1, minZoom:9 },
+  { name:'Nordvågen',    lat:71.0833, lon:26.7167, pop:1, minZoom:9 },
+  { name:'Kistrand',      lat:70.5167, lon:25.4667, pop:1, minZoom:9 },
+  { name:'Lakselv',       lat:70.0500, lon:24.9667, pop:1, minZoom:9 },
+  { name:'Børselv',      lat:70.3333, lon:26.1500, pop:1, minZoom:9 },
+  { name:'Ifjord',        lat:70.5500, lon:27.5333, pop:1, minZoom:9 },
+  { name:'Lebesby',       lat:70.6833, lon:26.9833, pop:1, minZoom:9 },
+  { name:'Gamvik',        lat:71.0667, lon:28.2333, pop:1, minZoom:9 },
+  { name:'Tanamunningen', lat:70.7167, lon:28.1333, pop:1, minZoom:9 },
+  { name:'Tana bru',      lat:70.2000, lon:28.1833, pop:1, minZoom:9 },
+  { name:'Austertana',    lat:70.6167, lon:27.8500, pop:1, minZoom:9 },
+  { name:'Tanabru',       lat:70.2000, lon:28.1833, pop:1, minZoom:9 },
+  { name:'Varangerbotn',  lat:70.1667, lon:28.7167, pop:1, minZoom:9 },
+  { name:'Neiden',        lat:69.7500, lon:29.3167, pop:1, minZoom:9 },
+  { name:'Sandnes',       lat:69.8333, lon:29.5000, pop:1, minZoom:9 },
+  { name:'Bjørnevatn',   lat:69.6833, lon:29.9833, pop:1, minZoom:9 },
+];
+
+// ── MATH ──────────────────────────────────────────────────────────────────────
+function lon2tile(lon,z){ return Math.floor((lon+180)/360*Math.pow(2,z)); }
+function lat2tile(lat,z){ return Math.floor((1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*Math.pow(2,z)); }
+function tile2lon(x,z)  { return x/Math.pow(2,z)*360-180; }
+function tile2lat(y,z)  { var n=Math.PI-2*Math.PI*y/Math.pow(2,z); return 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))); }
+function mercY(lat)     { return Math.log(Math.tan(Math.PI/4+lat*Math.PI/360)); }
+function arrMin(a){ return a.reduce(function(x,y){ return x<y?x:y; }); }
+function arrMax(a){ return a.reduce(function(x,y){ return x>y?x:y; }); }
+
+// Haversine distance in metres between two lat/lon points
+function haverDist(lat1, lon1, lat2, lon2) {
+  var R  = 6371000;
+  var d1 = lat1*Math.PI/180, d2 = lat2*Math.PI/180;
+  var dl = (lat2-lat1)*Math.PI/180, dL = (lon2-lon1)*Math.PI/180;
+  var a  = Math.sin(dl/2)*Math.sin(dl/2) + Math.cos(d1)*Math.cos(d2)*Math.sin(dL/2)*Math.sin(dL/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// Compute total distance of a track in metres
+function trackDist(pts) {
+  var d = 0;
+  for (var i=1; i<pts.length; i++) d += haverDist(pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]);
+  return d;
+}
+
+function fmtDist(m) {
+  if (m >= 1000) return (m/1000).toFixed(1)+' km';
+  return Math.round(m)+' m';
+}
+
+function project(lat, lon) {
+  var mx = lon*Math.PI/180, my = mercY(lat);
+  return [ W/2+(mx-view.cx)*view.scale, H/2-(my-view.cy)*view.scale ];
+}
+function unproject(px, py) {
+  var mx = (px-W/2)/view.scale+view.cx, my = (H/2-py)/view.scale+view.cy;
+  return [ (2*Math.atan(Math.exp(my))-Math.PI/2)*180/Math.PI, mx*180/Math.PI ];
+}
+function hexRgba(hex,a) {
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+
+// ── RESIZE / FIT ──────────────────────────────────────────────────────────────
+function resize() {
+  var wrap = document.getElementById('map-wrap');
+  var dpr  = window.devicePixelRatio || 1;
+  W = wrap.clientWidth;
+  H = wrap.clientHeight;
+  cv.width  = W * dpr;
+  cv.height = H * dpr;
+  cv.style.width  = W + 'px';
+  cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function fitAll() {
+  var allLat=[],allLon=[];
+  TRACKS.forEach(function(t){ t.pts.forEach(function(p){ allLat.push(p[0]); allLon.push(p[1]); }); });
+  if (!allLat.length) return;
+  var minLat=arrMin(allLat),maxLat=arrMax(allLat),minLon=arrMin(allLon),maxLon=arrMax(allLon);
+  view.cx = (minLon+maxLon)/2*Math.PI/180;
+  view.cy = mercY((minLat+maxLat)/2);
+  var mxSpan=(maxLon-minLon)*Math.PI/180, mySpan=mercY(maxLat)-mercY(minLat);
+  view.scale = Math.min(mxSpan>0?(W-80)/mxSpan:99999, mySpan>0?(H-80)/mySpan:99999);
+  view.zoom  = Math.max(10,Math.min(18,Math.round(Math.log2(view.scale*2*Math.PI/256))));
+}
+
+// ── TILES ─────────────────────────────────────────────────────────────────────
+function loadTile(x,y,z) {
+  var key = currentLayer+'/'+z+'/'+x+'/'+y;
+  if (tileCache[key]) return;
+  tileCache[key] = 'loading';
+  var img = new Image();
+  img.onload  = function(){ tileCache[key]=img; dirty=true; };
+  img.onerror = function(){ tileCache[key]='err'; };
+  img.src = TILE_URLS[currentLayer](x,y,z);
+}
+
+// ── DRAW ──────────────────────────────────────────────────────────────────────
+function draw() {
+  if (!ctx||W===0||H===0) return;
+  ctx.fillStyle='#e8e8e8';
+  ctx.fillRect(0,0,W,H);
+
+  var z=view.zoom, maxT=Math.pow(2,z)-1;
+  var tl=unproject(0,0), br=unproject(W,H);
+  var txMin=Math.max(0,lon2tile(tl[1],z)-1), txMax=Math.min(maxT,lon2tile(br[1],z)+1);
+  var tyMin=Math.max(0,lat2tile(tl[0],z)-1), tyMax=Math.min(maxT,lat2tile(br[0],z)+1);
+  var isSat=(currentLayer==='satellite');
+
+  for (var tx=txMin;tx<=txMax;tx++) {
+    for (var ty=tyMin;ty<=tyMax;ty++) {
+      var key=currentLayer+'/'+z+'/'+tx+'/'+ty;
+      var p1=project(tile2lat(ty,z),tile2lon(tx,z));
+      var p2=project(tile2lat(ty+1,z),tile2lon(tx+1,z));
+      var tw=p2[0]-p1[0], th=p2[1]-p1[1];
+      if (tileCache[key] && tileCache[key]!=='loading' && tileCache[key]!=='err') {
+        ctx.drawImage(tileCache[key],p1[0],p1[1],tw,th);
+      } else {
+        loadTile(tx,ty,z);
+      }
+    }
+  }
+
+  // Tracks
+  TRACKS.forEach(function(trk,i) {
+    if (!visible[i]) return;
+    var proj=trk.pts.map(function(p){ return project(p[0],p[1]); });
+    var k;
+    ctx.beginPath();
+    ctx.strokeStyle=hexRgba(trk.color,0.95);ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';
+    ctx.moveTo(proj[0][0],proj[0][1]);
+    for(k=1;k<proj.length;k++) ctx.lineTo(proj[k][0],proj[k][1]);
+    ctx.stroke();
+
+    if (showMarkers) {
+      var mr = Math.max(1, Math.min(3.5, (view.zoom - 10) * 0.4 + 1));
+      var s=proj[0];
+      ctx.beginPath();ctx.arc(s[0],s[1],mr,0,2*Math.PI);
+      ctx.fillStyle=trk.color;ctx.fill();
+      ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=0.3;ctx.stroke();
+      var e=proj[proj.length-1];
+      // Find index of last visible track
+      var lastVisible = -1;
+      for (var vi=TRACKS.length-1; vi>=0; vi--) { if (visible[vi]){ lastVisible=vi; break; } }
+      var isLastVisible = (i === lastVisible);
+      if (isLastVisible && showAvatar && avatarImg && avatarImg.complete) {
+        var avatarScale = Math.max(1.35, Math.min(3.0, (view.zoom - 10) / 4 + 1.35));
+        var aw = Math.round(avatarImg.width  * avatarScale);
+        var ah = Math.round(avatarImg.height * avatarScale);
+        ctx.drawImage(avatarImg, e[0]-aw/2, e[1]-ah-mr-2, aw, ah);
+      } else {
+        ctx.beginPath();ctx.arc(e[0],e[1],mr,0,2*Math.PI);
+        ctx.fillStyle=trk.color;ctx.fill();
+        ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=0.3;ctx.stroke();
+      }
+    }
+
+    if (showLabels || showDistances) {
+      var ep=proj[proj.length-1];
+      var sx=ep[0]+9, sy=ep[1]-7;
+      var labelFs = Math.max(6, Math.min(11, (view.zoom - 10) * 1.25 + 6));
+      var distFs  = Math.max(5, Math.min(9,  (view.zoom - 10) * 1.0  + 5));
+      if (showLabels && view.zoom >= 10) {
+        ctx.font='600 '+labelFs+'px Inter,sans-serif';
+        ctx.fillStyle=hexRgba(trk.color, Math.max(0.35, Math.min(0.9, (view.zoom-10)*0.18+0.35)));
+        ctx.fillText(trk.name, sx, sy);
+      }
+      if (showDistances && view.zoom >= 11) {
+        ctx.font=distFs+'px Inter,sans-serif';
+        ctx.fillStyle=hexRgba(trk.color, Math.max(0.25, Math.min(0.65, (view.zoom-10)*0.13+0.25)));
+        var distY = (showLabels && view.zoom >= 10) ? sy+labelFs+2 : sy;
+        ctx.fillText(fmtDist(trk.dist||0), sx, distY);
+      }
+    }
+  });
+
+  // Cities
+  if (showCities) {
+    var realZoom = Math.log2(view.scale * 2 * Math.PI / 256);
+    var tl = unproject(0, 0), br = unproject(W, H);
+    var latPad = 2.0, lonPad = 2.0;
+
+    // Find last visible segment endpoint
+    var lastPt = null;
+    for (var lvi = TRACKS.length-1; lvi >= 0; lvi--) {
+      if (visible[lvi]) { lastPt = TRACKS[lvi].pts[TRACKS[lvi].pts.length-1]; break; }
+    }
+
+    // Find nearest pop>=2 city within ~20km of last position
+    var nearbyCity = null;
+    if (lastPt) {
+      var best = 999999;
+      CITIES.forEach(function(c) {
+        if (c.pop < 1) return;
+        var dlat = (c.lat - lastPt[0]) * 111;
+        var dlon = (c.lon - lastPt[1]) * 111 * Math.cos(lastPt[0]*Math.PI/180);
+        var d = Math.sqrt(dlat*dlat + dlon*dlon);
+        if (d < 20 && d < best) { best = d; nearbyCity = c; }
+      });
+    }
+
+    ctx.save();
+    ctx.textBaseline = 'middle';
+
+    var drawnNames = {};
+
+    function drawCityLabel(city, forceShow) {
+      if (!forceShow && realZoom < city.minZoom) return;
+      if (!forceShow) {
+        if (city.lat > tl[0]+latPad || city.lat < br[0]-latPad) return;
+        if (city.lon < tl[1]-lonPad || city.lon > br[1]+lonPad) return;
+      }
+      if (drawnNames[city.name]) return;
+      drawnNames[city.name] = true;
+      var p = project(city.lat, city.lon);
+      var r = city.pop === 3 ? 3 : city.pop === 2 ? 2.5 : 2;
+      var fs = city.pop === 3 ? 14 : city.pop === 2 ? 12 : 11;
+      ctx.font = (city.pop >= 2 ? 'bold ' : '') + fs + 'px Arial,sans-serif';
+      var tw = ctx.measureText(city.name).width;
+      // South coast (Sweden to Mandal) and east Oslofjord: label LEFT of dot (inland)
+      var labelLeft = (city.lat < 59.5 && city.lon > 7.3 && city.lon < 11.5) || city.lon > 10.4;
+      var ty = p[1];
+      var tx = labelLeft ? p[0] - r - 3 : p[0] + r + 3;
+      ctx.textAlign = labelLeft ? 'right' : 'left';
+      // Google Maps style: thin stroke outline + soft off-white fill, no box
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = 'rgba(20,20,20,0.7)';
+      ctx.strokeText(city.name, tx, ty);
+      ctx.fillStyle = 'rgba(235,235,235,0.9)';
+      ctx.fillText(city.name, tx, ty);
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], r, 0, 2*Math.PI);
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+
+    // Draw all zoom-filtered cities in viewport
+    CITIES.forEach(function(city) { drawCityLabel(city, false); });
+
+    // Always draw nearest city to last position
+    if (nearbyCity) drawCityLabel(nearbyCity, true);
+
+    ctx.restore();
+  }
+
+  // ── SCALE BAR ──────────────────────────────────────────────────────────────
+  (function() {
+    // Use actual pixel scale directly — not clamped view.zoom
+    var earthCircum = 2 * Math.PI * 6371000;
+    var lat = unproject(W/2, H/2)[0];
+    var metersPerPx = earthCircum * Math.cos(lat * Math.PI/180) / (view.scale * 2 * Math.PI);
+    var maxBarPx = 100;
+    var maxMeters = metersPerPx * maxBarPx;
+    var nice = [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000];
+    var dist = nice[0];
+    for (var ni=0; ni<nice.length; ni++) { if (nice[ni] <= maxMeters) dist = nice[ni]; else break; }
+    var barPx = dist / metersPerPx;
+    var label = dist >= 1000 ? (dist/1000) + ' km' : dist + ' m';
+    var bottomOffset = 60;
+    var x = 14, y = H - bottomOffset;
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.beginPath();
+    ctx.roundRect(x-5, y-18, barPx+10, 22, 4);
+    ctx.fill();
+    ctx.font = '600 9px Inter,sans-serif';
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + barPx/2, y-6);
+    ctx.textAlign = 'left';
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, y); ctx.lineTo(x+barPx, y);
+    ctx.moveTo(x, y-4); ctx.lineTo(x, y);
+    ctx.moveTo(x+barPx, y-4); ctx.lineTo(x+barPx, y);
+    ctx.stroke();
+  })();
+  updateCoveredDist();
+  if (typeof offDrawPreview === 'function') offDrawPreview();
+}
+function updateStats() {
+  var active=TRACKS.filter(function(_,i){ return visible[i]; });
+  var panel=document.getElementById('stats');
+  if (!active.length){ panel.innerHTML='<div style="font-size:0.62rem;color:var(--muted)">No segments visible<\/div>'; return; }
+  var totalDist=active.reduce(function(s,t){ return s+(t.dist||0); },0);
+  panel.innerHTML=
+    '<div class="stat-row"><span class="sl">Distance<\/span><span class="sv">'+fmtDist(totalDist)+'<\/span><\/div>'+
+    '<div class="stat-row"><span class="sl">Days shown<\/span><span class="sv">'+active.length+'<\/span><\/div>';
+}
+
+function updateFooter() {
+  var totalDist=TRACKS.reduce(function(s,t){ return s+(t.dist||0); },0);
+  document.getElementById('f-dist').textContent=(totalDist/1000).toFixed(2);
+}
+
+function updateCoveredDist() {
+  var el = document.getElementById('covered-dist-overlay');
+  if (!el) return;
+  if (!showCoveredDist || anim.active) { el.style.display='none'; return; }
+  var activeTracks = TRACKS.filter(function(_,i){ return visible[i]; });
+  var totalDist = activeTracks.reduce(function(s,t){ return s+(t.dist||0); },0);
+  var days = activeTracks.length;
+  el.innerHTML = '<div class="days-line">' + days + ' day' + (days===1?'':'s') + ' swimming</div>' +
+                 '<div class="km-line">' + Math.round(totalDist/1000) + ' km covered</div>';
+  el.style.display = 'block';
+}
+
+// ── STITCH ────────────────────────────────────────────────────────────────────
+function stitchTracks() {
+  for (var i = 1; i < TRACKS.length; i++) {
+    var prevEnd = TRACKS[i-1].pts[TRACKS[i-1].pts.length - 1];
+    TRACKS[i].pts[0] = prevEnd.slice();
+  }
+  TRACKS.forEach(function(t){ t.dist = trackDist(t.pts); });
+  buildTrackList(); updateStats(); draw();
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function toggleTrack(i) {
+  visible[i]=!visible[i];
+  document.getElementById('tog-'+i).className='tog'+(visible[i]?' on':'');
+  document.getElementById('row-'+i).className='track-row'+(visible[i]?'':' off');
+  updateStats(); draw();
+}
+
+function removeTrack(i) {
+  TRACKS.splice(i,1);
+  visible.splice(i,1);
+  buildTrackList(); updateStats(); updateFooter(); fitAll(); draw();
+}
+
+function moveTrack(i, dir) {
+  var j = i + dir;
+  if (j < 0 || j >= TRACKS.length) return;
+  // swap tracks
+  var tmp = TRACKS[i]; TRACKS[i] = TRACKS[j]; TRACKS[j] = tmp;
+  // swap visibility
+  var tv = visible[i]; visible[i] = visible[j]; visible[j] = tv;
+  buildTrackList(); updateStats(); draw();
+}
+
+function buildTrackList() {
+  var list=document.getElementById('track-list');
+  list.innerHTML='';
+  TRACKS.forEach(function(trk,i) {
+    var row=document.createElement('div');
+    row.className='track-row'+(visible[i]?'':' off'); row.id='row-'+i;
+
+    // ↑↓ reorder buttons
+    var moveWrap=document.createElement('div'); moveWrap.className='trk-move';
+    var btnUp=document.createElement('button'); btnUp.className='trk-move-btn'; btnUp.textContent='▲'; btnUp.title='Move up';
+    var btnDn=document.createElement('button'); btnDn.className='trk-move-btn'; btnDn.textContent='▼'; btnDn.title='Move down';
+    (function(idx){
+      btnUp.addEventListener('click',function(e){ e.stopPropagation(); moveTrack(idx,-1); });
+      btnDn.addEventListener('click',function(e){ e.stopPropagation(); moveTrack(idx, 1); });
+    })(i);
+    moveWrap.appendChild(btnUp); moveWrap.appendChild(btnDn);
+
+    var tog=document.createElement('div');
+    tog.className='tog'+(visible[i]?' on':''); tog.id='tog-'+i;
+    (function(idx){ tog.addEventListener('click',function(){ toggleTrack(idx); }); })(i);
+
+    var swatch=document.createElement('div'); swatch.className='color-swatch'; swatch.style.background=trk.color;
+    var ci=document.createElement('input'); ci.type='color'; ci.value=trk.color;
+    (function(t,sw,inp){ inp.addEventListener('input',function(){ t.color=inp.value; sw.style.background=t.color; draw(); }); })(trk,swatch,ci);
+    swatch.appendChild(ci);
+
+    var info=document.createElement('div'); info.className='trk-info';
+    var ni=document.createElement('input'); ni.type='text'; ni.className='trk-name-input'; ni.value=trk.name; ni.spellcheck=false;
+    (function(t,inp){
+      inp.addEventListener('input',function(){ t.name=inp.value; draw(); });
+      inp.addEventListener('click',function(e){ e.stopPropagation(); });
+    })(trk,ni);
+    var distEl=document.createElement('div'); distEl.className='trk-dist'; distEl.textContent=fmtDist(trk.dist||0);
+    info.appendChild(ni); info.appendChild(distEl);
+
+    var del=document.createElement('span'); del.className='trk-del'; del.textContent='×'; del.title='Remove segment';
+    (function(idx){ del.addEventListener('click',function(){ if(confirm('Remove '+TRACKS[idx].name+'?')) removeTrack(idx); }); })(i);
+
+    row.appendChild(moveWrap); row.appendChild(tog); row.appendChild(swatch); row.appendChild(info); row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+// ── GPX PARSER ────────────────────────────────────────────────────────────────
+function parseGPX(xml, filename) {
+  var parser = new DOMParser();
+  var doc    = parser.parseFromString(xml, 'text/xml');
+  var ns     = 'http://www.topografix.com/GPX/1/1';
+  var nsExt  = 'http://www.garmin.com/xmlschemas/TrackPointExtension/v1';
+
+  // Try namespaced first, fall back to local-name query
+  var trkpts = doc.getElementsByTagNameNS(ns,'trkpt');
+  if (!trkpts.length) trkpts = doc.getElementsByTagName('trkpt');
+
+  var pts = [];
+  for (var i=0; i<trkpts.length; i++) {
+    var tp  = trkpts[i];
+    var lat = parseFloat(tp.getAttribute('lat'));
+    var lon = parseFloat(tp.getAttribute('lon'));
+    var eleEl = tp.getElementsByTagName('ele')[0];
+    var ele   = eleEl ? parseFloat(eleEl.textContent) : 0;
+    var hrEl  = tp.getElementsByTagName('gpxtpx:hr')[0] || tp.getElementsByTagName('hr')[0];
+    var hr    = hrEl ? parseInt(hrEl.textContent) : 0;
+    if (!isNaN(lat) && !isNaN(lon)) pts.push([lat,lon,ele,hr]);
+  }
+  if (!pts.length) return null;
+
+  // Downsample to max 400 pts
+  var step = Math.max(1, Math.floor(pts.length/400));
+  var sampled = [];
+  for (var j=0; j<pts.length; j+=step) sampled.push(pts[j]);
+  // Always include last point
+  if (sampled[sampled.length-1] !== pts[pts.length-1]) sampled.push(pts[pts.length-1]);
+
+  var nameEl = doc.getElementsByTagName('name')[0];
+  // Try to get date from first trkpt <time> element
+  var timeEl = doc.getElementsByTagName('time')[0];
+  var autoName = '';
+  var dateMs = 0;
+  if (timeEl) {
+    var d = new Date(timeEl.textContent.trim());
+    if (!isNaN(d.getTime())) {
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      autoName = d.getDate() + ' ' + months[d.getMonth()];
+      dateMs = d.getTime();
+    }
+  }
+  var name = autoName || (nameEl ? nameEl.textContent.trim() : filename.replace(/\.gpx$/i,''));
+
+  var color = NEXT_COLORS[colorIdx % NEXT_COLORS.length];
+  colorIdx++;
+
+  var trk = { name:name, color:color, pts:sampled, dateMs:dateMs };
+  trk.dist = trackDist(trk.pts);
+  return trk;
+}
+
+function sortTracksByDate() {
+  // Sort tracks that have a date; tracks without dates stay at end
+  TRACKS.sort(function(a, b) {
+    var da = a.dateMs || 0, db = b.dateMs || 0;
+    if (da === 0 && db === 0) return 0;
+    if (da === 0) return 1;
+    if (db === 0) return -1;
+    return da - db;
+  });
+  // Rebuild visible array to match new order (all true)
+  visible = TRACKS.map(function(){ return true; });
+}
+
+function loadGPXFiles(files) {
+  var remaining = files.length;
+  if (!remaining) return;
+  for (var i=0; i<files.length; i++) {
+    (function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var trk = parseGPX(e.target.result, file.name);
+        if (trk) {
+          TRACKS.push(trk);
+          visible.push(true);
+        }
+        remaining--;
+        if (remaining === 0) {
+          sortTracksByDate();
+          buildTrackList(); updateStats(); updateFooter(); fitAll(); draw();
+        }
+      };
+      reader.readAsText(file);
+    })(files[i]);
+  }
+}
+
+// ── APPEARANCE STATE ──────────────────────────────────────────────────────────
+var currentFont = "'Inter',sans-serif";
+
+function applyFont(font) {
+  currentFont = font;
+  document.body.style.fontFamily = font;
+  document.querySelectorAll('.trk-name-input, #title-input, .btn-all, .layer-btn, .btn-upload, .font-select').forEach(function(el){
+    el.style.fontFamily = font;
+  });
+  draw();
+}
+
+// ── SAVE AS ───────────────────────────────────────────────────────────────────
+function saveAs() {
+  var titleEl = document.getElementById('title-input');
+  var defaultName = (titleEl.value || 'map').replace(/[^a-z0-9_\-\s]/gi,'').trim() || 'map';
+  var fname = prompt('Save file as:', defaultName);
+  if (!fname) return;
+  if (!fname.toLowerCase().endsWith('.html')) fname += '.html';
+
+  var src = document.documentElement.outerHTML;
+
+  // Ensure sidebar is saved closed (remove 'open' class from sidebar)
+  src = src.replace(/(<div[^>]*id="sidebar"[^>]*class="[^"]*)\bopen\b([^"]*")/,
+    function(m, pre, post) { return pre.trim() + post; });
+
+  // 1. Patch title
+  var titleVal = titleEl.value.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  src = src.replace(/(<input id="title-input"[^>]*value=")[^"]*(")/,
+    function(m,pre,post){ return pre+titleVal+post; });
+
+  // 2. Patch TRACKS with current names, colors, pts
+  var tracksJS = 'var TRACKS = ' + JSON.stringify(TRACKS.map(function(t){
+    return { name:t.name, color:t.color, pts:t.pts };
+  })) + ';';
+  src = src.replace(/var TRACKS = \[[\s\S]*?\];/, tracksJS);
+
+  // 3. Patch font in body CSS
+  src = src.replace(/(body\{[^}]*font-family:)[^;]+;/, '$1'+currentFont+';');
+
+  // 4. Patch selected font in select
+  var fontMatch = src.match(/<select[^>]*id="font-select"[^>]*>([\s\S]*?)<\/select>/);
+  if (fontMatch) {
+    var newSel = fontMatch[0].replace(/\s*selected/g,'').replace(
+      new RegExp('(value="'+currentFont.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'")'), '$1 selected');
+    src = src.replace(fontMatch[0], newSel);
+  }
+
+  // 5. Patch display state variables
+  src = src.replace(/var showMarkers\s*=\s*(true|false);/,   'var showMarkers = '  +showMarkers  +';');
+  src = src.replace(/var showLabels\s*=\s*(true|false);/,    'var showLabels = '   +showLabels   +';');
+  src = src.replace(/var showDistances\s*=\s*(true|false);/, 'var showDistances = '+showDistances+';');
+  src = src.replace(/var showAvatar\s*=\s*(true|false);/,  'var showAvatar = '+showAvatar+';');
+  src = src.replace(/var showCities\s*=\s*(true|false);/,    'var showCities = '   +showCities   +';');
+  src = src.replace(/var showCoveredDist\s*=\s*(true|false);/, 'var showCoveredDist = '+showCoveredDist+';');
+  src = src.replace(/(id="tog-markers"[^>]*class=")[^"]*(")/,
+    function(m,pre,post){ return pre+'tog'+(showMarkers?' on':'')+post; });
+  src = src.replace(/(id="tog-labels"[^>]*class=")[^"]*(")/,
+    function(m,pre,post){ return pre+'tog'+(showLabels?' on':'')+post; });
+  src = src.replace(/(id="tog-distances"[^>]*class=")[^"]*(")/,
+    function(m,pre,post){ return pre+'tog'+(showDistances?' on':'')+post; });
+  src = src.replace(/(id="tog-avatar"[^>]*class=")[^"]*(")/,
+    function(m,pre,post){ return pre+'tog'+(showAvatar?' on':'')+post; });
+  src = src.replace(/(id="tog-cities"[^>]*class=")[^"]*(")/,
+    function(m,pre,post){ return pre+'tog'+(showCities?' on':'')+post; });
+  src = src.replace(/(id="tog-covered"[^>]*class=")[^"]*(")/,
+    function(m,pre,post){ return pre+'tog'+(showCoveredDist?' on':'')+post; });
+
+  // 6. Patch all-color-swatch to reflect current first track color
+  if (TRACKS.length) {
+    src = src.replace(/(id="all-color-swatch"[^>]*style="background:)[^"]*(")/,
+      function(m,pre,post){ return pre+TRACKS[0].color+post; });
+    src = src.replace(/(id="all-color-input"[^>]*value=")[^"]*(")/,
+      function(m,pre,post){ return pre+TRACKS[0].color+post; });
+  }
+
+  var blob = new Blob([src], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fname;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  cv  = document.getElementById('cv');
+  ctx = cv.getContext('2d');
+
+  TRACKS.forEach(function(t){ t.dist = trackDist(t.pts); });
+  // stitchTracks(); // disabled: parallel comparison tracks keep their own start points
+
+  // Drawer handle toggle
+  document.getElementById('drawer-handle').addEventListener('click', function(){
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  resize(); fitAll();
+  document.getElementById('attrib').innerHTML = TILE_ATTRIB[currentLayer];
+  buildTrackList(); updateStats(); updateFooter();
+  draw();
+
+  setInterval(function(){ if(dirty){ dirty=false; draw(); } }, 100);
+
+  // Animate button
+  document.getElementById('btn-animate').addEventListener('click', function(){
+    if (anim.active) animStop(); else animStart();
+  });
+  document.getElementById('anim-playpause').addEventListener('click', function(){
+    if (!anim.active) return;
+    anim.playing = !anim.playing;
+    this.innerHTML = anim.playing ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1.5" y="1" width="3.5" height="10" rx="1"/><rect x="7" y="1" width="3.5" height="10" rx="1"/></svg>' : '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="2,1 11,6 2,11"/></svg>';
+    if (anim.playing) { anim.raf = requestAnimationFrame(animStep); }
+  });
+  document.getElementById('anim-reset').addEventListener('click', function(){
+    if (!anim.active) return;
+    anim.pos = 0; anim.playing = true;
+    document.getElementById('anim-playpause').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1.5" y="1" width="3.5" height="10" rx="1"/><rect x="7" y="1" width="3.5" height="10" rx="1"/></svg>';
+    if (anim.raf) cancelAnimationFrame(anim.raf);
+    anim.raf = requestAnimationFrame(animStep);
+  });
+  document.getElementById('anim-close').addEventListener('click', animStop);
+  document.getElementById('anim-speed').addEventListener('input', function(){
+    anim.speed = parseFloat(this.value);
+  });
+
+  // Save As
+  document.getElementById('btn-saveas').addEventListener('click', saveAs);
+
+  // All segments color
+  document.getElementById('all-color-input').addEventListener('input', function(){
+    var c = this.value;
+    document.getElementById('all-color-swatch').style.background = c;
+    TRACKS.forEach(function(t){ t.color = c; });
+    buildTrackList(); draw();
+  });
+
+  // Layer
+  document.getElementById('btn-street').addEventListener('click',function(){
+    currentLayer='street';
+    document.getElementById('btn-street').className='layer-btn active';
+    document.getElementById('btn-satellite').className='layer-btn';
+    document.getElementById('attrib').innerHTML=TILE_ATTRIB.street;
+    tileCache={}; draw();
+  });
+  document.getElementById('btn-satellite').addEventListener('click',function(){
+    currentLayer='satellite';
+    document.getElementById('btn-street').className='layer-btn';
+    document.getElementById('btn-satellite').className='layer-btn active';
+    document.getElementById('attrib').innerHTML=TILE_ATTRIB.satellite;
+    tileCache={}; draw();
+  });
+
+  // Zoom buttons
+  document.getElementById('btn-plus').addEventListener('click',function(){ view.scale*=1.5; view.zoom=Math.max(10,Math.min(18,Math.round(Math.log2(view.scale*2*Math.PI/256)))); draw(); });
+  document.getElementById('btn-minus').addEventListener('click',function(){ view.scale/=1.5; view.zoom=Math.max(10,Math.min(18,Math.round(Math.log2(view.scale*2*Math.PI/256)))); draw(); });
+  document.getElementById('btn-fit').addEventListener('click',function(){ fitAll(); draw(); });
+
+  // Show all
+  document.getElementById('btn-all').addEventListener('click',function(){ for(var i=0;i<TRACKS.length;i++){if(!visible[i])toggleTrack(i);} });
+  document.getElementById('btn-stitch').addEventListener('click', stitchTracks);
+
+  // Display toggles
+  document.getElementById('tog-markers').addEventListener('click',function(){ showMarkers=!showMarkers; this.className='tog'+(showMarkers?' on':''); draw(); });
+  document.getElementById('tog-labels').addEventListener('click',function(){    showLabels=!showLabels;    this.className='tog'+(showLabels?' on':'');    draw(); });
+  document.getElementById('tog-distances').addEventListener('click',function(){ showDistances=!showDistances; this.className='tog'+(showDistances?' on':''); draw(); });
+  document.getElementById('tog-cities').addEventListener('click',function(){    showCities=!showCities;    this.className='tog'+(showCities?' on':'');    draw(); });
+  document.getElementById('tog-covered').addEventListener('click',function(){ showCoveredDist=!showCoveredDist; this.className='tog'+(showCoveredDist?' on':''); updateCoveredDist(); });
+
+  // GPX upload
+  document.getElementById('gpx-input').addEventListener('change',function(e){
+    loadGPXFiles(e.target.files);
+    e.target.value='';
+  });
+
+  // Mouse pan
+  cv.addEventListener('mousedown',function(e){ drag={x:e.clientX,y:e.clientY,cx:view.cx,cy:view.cy}; });
+  window.addEventListener('mousemove',function(e){
+    if(!drag) return;
+    view.cx=drag.cx-(e.clientX-drag.x)/view.scale;
+    view.cy=drag.cy+(e.clientY-drag.y)/view.scale;
+    draw();
+  });
+  window.addEventListener('mouseup',function(){ drag=null; });
+
+  // Scroll zoom
+  cv.addEventListener('wheel',function(e){
+    e.preventDefault();
+    view.scale*=(e.deltaY<0?1.2:1/1.2);
+    view.zoom=Math.max(10,Math.min(18,Math.round(Math.log2(view.scale*2*Math.PI/256))));
+    draw();
+  },{passive:false});
+
+  // Touch pan + pinch zoom
+  var touches = {};
+  var lastPinchDist = null;
+  cv.addEventListener('touchstart',function(e){
+    e.preventDefault();
+    for(var i=0;i<e.changedTouches.length;i++){
+      var t=e.changedTouches[i];
+      touches[t.identifier]={x:t.clientX,y:t.clientY};
+    }
+    var ids=Object.keys(touches);
+    if(ids.length===1){
+      drag={x:touches[ids[0]].x,y:touches[ids[0]].y,cx:view.cx,cy:view.cy};
+      lastPinchDist=null;
+    } else if(ids.length===2){
+      drag=null;
+      var a=touches[ids[0]],b=touches[ids[1]];
+      lastPinchDist=Math.hypot(b.x-a.x,b.y-a.y);
+    }
+  },{passive:false});
+
+  cv.addEventListener('touchmove',function(e){
+    e.preventDefault();
+    for(var i=0;i<e.changedTouches.length;i++){
+      var t=e.changedTouches[i];
+      touches[t.identifier]={x:t.clientX,y:t.clientY};
+    }
+    var ids=Object.keys(touches);
+    if(ids.length===1 && drag){
+      var tx=touches[ids[0]];
+      view.cx=drag.cx-(tx.x-drag.x)/view.scale;
+      view.cy=drag.cy+(tx.y-drag.y)/view.scale;
+      draw();
+    } else if(ids.length===2){
+      var a=touches[ids[0]],b=touches[ids[1]];
+      var dist=Math.hypot(b.x-a.x,b.y-a.y);
+      if(lastPinchDist){
+        view.scale*=dist/lastPinchDist;
+        view.zoom=Math.max(10,Math.min(18,Math.round(Math.log2(view.scale*2*Math.PI/256))));
+        draw();
+      }
+      lastPinchDist=dist;
+    }
+  },{passive:false});
+
+  cv.addEventListener('touchend',function(e){
+    for(var i=0;i<e.changedTouches.length;i++){
+      delete touches[e.changedTouches[i].identifier];
+    }
+    if(Object.keys(touches).length<2) lastPinchDist=null;
+    if(Object.keys(touches).length===0) drag=null;
+  },{passive:false});
+});
+
+window.addEventListener('resize',function(){ if(!cv) return; resize(); draw(); });
+
+// ── ANIMATION ENGINE ──────────────────────────────────────────────────────────
+var anim = {
+  active: false,
+  playing: false,
+  // Flattened list of all points with track index
+  pts: [],
+  pos: 0,          // current float position in pts array
+  speed: 4,        // pts per frame (controlled by slider)
+  raf: null,
+  savedView: null,
+};
+
+function animBuildPts() {
+  anim.pts = [];
+  TRACKS.forEach(function(trk, ti) {
+    trk.pts.forEach(function(p, pi) {
+      anim.pts.push({ lat:p[0], lon:p[1], trackIdx:ti, ptIdx:pi });
+    });
+  });
+}
+
+function animProject(lat, lon) {
+  // Use the same project() as the main map - no tilt offset so dot stays locked to GPS position
+  return project(lat, lon);
+}
+
+function animDrawFrame() {
+  if (!ctx || W===0 || H===0) return;
+
+  // Draw regular map (tiles) but skip tracks/markers/cities
+  ctx.fillStyle = '#e8e8e8';
+  ctx.fillRect(0, 0, W, H);
+
+  var z=view.zoom, maxT=Math.pow(2,z)-1;
+  var tl=unproject(0,0), br=unproject(W,H);
+  var txMin=Math.max(0,lon2tile(tl[1],z)-1), txMax=Math.min(maxT,lon2tile(br[1],z)+1);
+  var tyMin=Math.max(0,lat2tile(tl[0],z)-1), tyMax=Math.min(maxT,lat2tile(br[0],z)+1);
+  for (var tx=txMin;tx<=txMax;tx++) {
+    for (var ty=tyMin;ty<=tyMax;ty++) {
+      var key=currentLayer+'/'+z+'/'+tx+'/'+ty;
+      var p1=project(tile2lat(ty,z),tile2lon(tx,z));
+      var p2=project(tile2lat(ty+1,z),tile2lon(tx+1,z));
+      if (tileCache[key] && tileCache[key]!=='loading' && tileCache[key]!=='err') {
+        ctx.drawImage(tileCache[key],p1[0],p1[1],p2[0]-p1[0],p2[1]-p1[1]);
+      } else {
+        loadTile(tx,ty,z);
+      }
+    }
+  }
+
+  var pos = Math.floor(anim.pos);
+  if (pos < 1) { animDrawDot(0); return; }
+
+  // Draw completed segments (grey) behind
+  TRACKS.forEach(function(trk) {
+    var proj = trk.pts.map(function(p){ return animProject(p[0],p[1]); });
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(180,180,180,0.5)'; ctx.lineWidth=2.5;
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.moveTo(proj[0][0], proj[0][1]);
+    for (var k=1;k<proj.length;k++) ctx.lineTo(proj[k][0],proj[k][1]);
+    ctx.stroke();
+  });
+
+  // Draw animated trail up to current position
+  var currentTrackIdx = anim.pts[pos].trackIdx;
+  // Group pts by track up to pos
+  var trailByTrack = {};
+  for (var i=0; i<=pos && i<anim.pts.length; i++) {
+    var ti = anim.pts[i].trackIdx;
+    if (!trailByTrack[ti]) trailByTrack[ti] = [];
+    trailByTrack[ti].push(anim.pts[i]);
+  }
+  Object.keys(trailByTrack).forEach(function(ti) {
+    var trk = TRACKS[ti];
+    var pts = trailByTrack[ti];
+    if (pts.length < 2) return;
+    ctx.beginPath();
+    ctx.strokeStyle = trk.color; ctx.lineWidth = 3.5;
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    var p0 = animProject(pts[0].lat, pts[0].lon);
+    ctx.moveTo(p0[0], p0[1]);
+    for (var j=1;j<pts.length;j++) {
+      var pp = animProject(pts[j].lat, pts[j].lon);
+      ctx.lineTo(pp[0], pp[1]);
+    }
+    ctx.stroke();
+  });
+
+  animDrawDot(pos);
+  animUpdateStats(pos);
+}
+
+function animDrawDot(pos) {
+  if (pos >= anim.pts.length) return;
+  var p = anim.pts[pos];
+  var xy = animProject(p.lat, p.lon);
+  var trk = TRACKS[p.trackIdx];
+  // Glow
+  ctx.beginPath(); ctx.arc(xy[0], xy[1], 10, 0, 2*Math.PI);
+  ctx.fillStyle = hexRgba(trk.color, 0.25); ctx.fill();
+  // Dot
+  ctx.beginPath(); ctx.arc(xy[0], xy[1], 5, 0, 2*Math.PI);
+  ctx.fillStyle = trk.color; ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+function animUpdateStats(pos) {
+  var p = anim.pts[pos];
+  var trk = TRACKS[p.trackIdx];
+  // Cumulative distance up to current point
+  var cumDist = 0;
+  for (var i=0; i<p.trackIdx; i++) cumDist += TRACKS[i].dist || 0;
+  // Distance within current track up to ptIdx
+  for (var j=1; j<=p.ptIdx && j<trk.pts.length; j++) {
+    cumDist += haverDist(trk.pts[j-1][0],trk.pts[j-1][1],trk.pts[j][0],trk.pts[j][1]);
+  }
+  document.getElementById('anim-day').textContent = trk.name;
+  document.getElementById('anim-km').textContent = Math.round(cumDist/1000);
+}
+
+function animStep() {
+  if (!anim.active || !anim.playing) return;
+  anim.pos += anim.speed * 0.5;
+  if (anim.pos >= anim.pts.length - 1) {
+    anim.pos = anim.pts.length - 1;
+    anim.playing = false;
+    document.getElementById('anim-playpause').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="2,1 11,6 2,11"/></svg>';
+  }
+  animDrawFrame();
+  if (anim.playing) anim.raf = requestAnimationFrame(animStep);
+}
+
+function animStart() {
+  animBuildPts();
+  anim.active = true;
+  anim.playing = true;
+  anim.pos = 0;
+  anim.speed = parseFloat(document.getElementById('anim-speed').value);
+  // Show controls + stats
+  document.getElementById('anim-controls').classList.add('visible');
+  document.getElementById('anim-stats').style.display = 'block';
+  document.getElementById('covered-dist-overlay').style.display = 'none';
+  document.getElementById('anim-playpause').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1.5" y="1" width="3.5" height="10" rx="1"/><rect x="7" y="1" width="3.5" height="10" rx="1"/></svg>';
+  document.getElementById('btn-animate').classList.add('active');
+  document.getElementById('btn-animate').innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style="vertical-align:middle;margin-right:4px"><rect x="1" y="1" width="8" height="8" rx="1"/></svg>Stop';
+  // Fit view
+  fitAll(); resize();
+  animStep();
+}
+
+function animStop() {
+  anim.active = false;
+  anim.playing = false;
+  if (anim.raf) cancelAnimationFrame(anim.raf);
+  document.getElementById('anim-controls').classList.remove('visible');
+  document.getElementById('anim-stats').style.display = 'none';
+  document.getElementById('btn-animate').classList.remove('active');
+  document.getElementById('btn-animate').innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style="vertical-align:middle;margin-right:4px"><polygon points="1,0.5 9.5,5 1,9.5"/></svg>Animate';
+  draw();
+}
+</script>
+
+
+<div id="off-modal" style="display: none;">
+  <div class="box">
+    <h3>Save offset segment</h3>
+    <div id="off-modal-sub">Copy of “Håkon adjusted” shifted by<br>East +3 m, North -1 m (whole path, same offset).</div>
+    <input id="off-modal-name" type="text" spellcheck="false" placeholder="Segment name">
+    <div class="btns">
+      <button id="off-modal-cancel">Cancel</button>
+      <button id="off-modal-ok">Save</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var offTool = window.offTool = { idx:-1, dE:0, dN:0, step:2 };
+  var MLAT = 111320;
+  function mLon(lat){ return 111320*Math.cos(lat*Math.PI/180); }
+  function sel(){ return (offTool.idx>=0 && offTool.idx<TRACKS.length) ? TRACKS[offTool.idx] : null; }
+  function delta(){ var t=sel(); if(!t) return [0,0]; var lat=t.pts[0][0]; return [ offTool.dN/MLAT, offTool.dE/mLon(lat) ]; }
+
+  window.offDrawPreview = function(){
+    var t=sel(); if(!t) return; if(!offTool.dE && !offTool.dN) return;
+    var d=delta();
+    var proj=t.pts.map(function(p){ return project(p[0]+d[0], p[1]+d[1]); });
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(proj[0][0],proj[0][1]);
+    for(var k=1;k<proj.length;k++) ctx.lineTo(proj[k][0],proj[k][1]);
+    ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=5; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(proj[0][0],proj[0][1]);
+    for(k=1;k<proj.length;k++) ctx.lineTo(proj[k][0],proj[k][1]);
+    ctx.strokeStyle=t.color; ctx.lineWidth=3; ctx.setLineDash([9,5]); ctx.stroke(); ctx.setLineDash([]);
+    [proj[0], proj[proj.length-1]].forEach(function(pt){
+      ctx.beginPath(); ctx.arc(pt[0],pt[1],4,0,2*Math.PI); ctx.fillStyle=t.color; ctx.fill();
+      ctx.lineWidth=1.5; ctx.strokeStyle='#fff'; ctx.stroke();
+    });
+    ctx.restore();
+  };
+
+  function readout(){
+    var r=document.getElementById('off-readout'); if(!r) return;
+    var e=(offTool.dE>=0?'+':'')+offTool.dE.toFixed(0), n=(offTool.dN>=0?'+':'')+offTool.dN.toFixed(0);
+    r.innerHTML='\u0394 East '+e+' m &nbsp; \u0394 North '+n+' m';
+    var sv=document.getElementById('off-save'); if(sv) sv.disabled=(offTool.idx<0);
+  }
+  window.offRebuildSelect = function(){
+    var s=document.getElementById('off-seg'); if(!s) return;
+    var cur=offTool.idx;
+    s.innerHTML='';
+    var o0=document.createElement('option'); o0.value='-1'; o0.textContent='\u2014 choose a segment \u2014'; s.appendChild(o0);
+    TRACKS.forEach(function(t,i){ var o=document.createElement('option'); o.value=i; o.textContent=(i+1)+'. '+t.name; s.appendChild(o); });
+    if(cur>=0 && cur<TRACKS.length){ s.value=String(cur); } else { s.value='-1'; offTool.idx=-1; }
+    readout();
+  };
+  function nudge(de,dn){ if(offTool.idx<0) return; offTool.dE+=de*offTool.step; offTool.dN+=dn*offTool.step; readout(); draw(); }
+  function reset(){ offTool.dE=0; offTool.dN=0; readout(); draw(); }
+
+  function hold(btn, fn){
+    if(!btn) return; var iv=null,to=null;
+    function start(e){ e.preventDefault(); fn(); to=setTimeout(function(){ iv=setInterval(fn,80); },350); }
+    function stop(){ clearTimeout(to); clearInterval(iv); iv=to=null; }
+    btn.addEventListener('mousedown',start); btn.addEventListener('touchstart',start,{passive:false});
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(function(ev){ btn.addEventListener(ev,stop); });
+  }
+
+  function openModal(){
+    if(offTool.idx<0) return;
+    var t=TRACKS[offTool.idx];
+    document.getElementById('off-modal-name').value=t.name+' (offset)';
+    var e=(offTool.dE>=0?'+':'')+offTool.dE.toFixed(0), n=(offTool.dN>=0?'+':'')+offTool.dN.toFixed(0);
+    document.getElementById('off-modal-sub').innerHTML='Copy of \u201c'+t.name+'\u201d shifted by<br>East '+e+' m, North '+n+' m (whole path, same offset).';
+    var m=document.getElementById('off-modal'); m.style.display='flex';
+    var inp=document.getElementById('off-modal-name'); inp.focus(); inp.select();
+  }
+  function closeModal(){ document.getElementById('off-modal').style.display='none'; }
+  function confirmSave(){
+    if(offTool.idx<0){ closeModal(); return; }
+    var name=document.getElementById('off-modal-name').value.trim();
+    if(!name){ document.getElementById('off-modal-name').focus(); return; }
+    var t=TRACKS[offTool.idx], d=delta();
+    var pts=t.pts.map(function(p){ return [ +(p[0]+d[0]).toFixed(6), +(p[1]+d[1]).toFixed(6), p[2], p[3] ]; });
+    var color=NEXT_COLORS[colorIdx % NEXT_COLORS.length]; colorIdx++;
+    var nt={ name:name, color:color, pts:pts }; nt.dist=trackDist(pts);
+    TRACKS.push(nt); visible.push(true);
+    offTool.dE=0; offTool.dN=0; closeModal();
+    buildTrackList(); updateStats(); if(typeof updateFooter==='function') updateFooter(); offRebuildSelect(); draw();
+  }
+
+  // keep the picker in sync whenever the segment list rebuilds
+  if(typeof buildTrackList==='function' && !buildTrackList.__offWrapped){
+    var _b=buildTrackList;
+    window.buildTrackList=buildTrackList=function(){ _b.apply(this,arguments); try{ offRebuildSelect(); }catch(e){} };
+    buildTrackList.__offWrapped=true;
+  }
+
+  function init(){
+    var s=document.getElementById('off-seg'); if(!s) return;
+    offRebuildSelect();
+    s.addEventListener('change',function(){ offTool.idx=parseInt(s.value,10); offTool.dE=0; offTool.dN=0; readout(); draw(); });
+    document.querySelectorAll('.off-step').forEach(function(b){
+      b.addEventListener('click',function(){
+        document.querySelectorAll('.off-step').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active'); offTool.step=parseFloat(b.getAttribute('data-step'));
+      });
+    });
+    hold(document.getElementById('off-up'),   function(){ nudge(0, 1); });
+    hold(document.getElementById('off-down'), function(){ nudge(0,-1); });
+    hold(document.getElementById('off-left'), function(){ nudge(-1,0); });
+    hold(document.getElementById('off-right'),function(){ nudge(1, 0); });
+    document.getElementById('off-center').addEventListener('click',reset);
+    document.getElementById('off-save').addEventListener('click',openModal);
+    document.getElementById('off-modal-cancel').addEventListener('click',closeModal);
+    document.getElementById('off-modal-ok').addEventListener('click',confirmSave);
+    document.getElementById('off-modal-name').addEventListener('keydown',function(e){
+      if(e.key==='Enter') confirmSave(); if(e.key==='Escape') closeModal();
+    });
+    readout();
+  }
+  if(document.readyState==='complete') init(); else window.addEventListener('load',init);
+})();
+</script>
+</body></html>
